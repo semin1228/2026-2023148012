@@ -4,7 +4,9 @@ import os
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-open_canvas(800, 600)
+WIDTH, HEIGHT = 800, 600
+
+open_canvas(WIDTH, HEIGHT)
 character = load_image('character.png')
 
 
