@@ -6,6 +6,7 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 WIDTH, HEIGHT = 800, 600
 CX, CY, RADIUS = 400, 300, 200
+LEFT, RIGHT, BOTTOM, TOP = 50, 750, 50, 550
 
 open_canvas(WIDTH, HEIGHT)
 character = load_image('character.png')
@@ -22,8 +23,8 @@ def draw_circle():
 
 
 def move_top():
-    for x in range(50, 750, 5):
-        draw_character(x, 550)
+    for x in range(LEFT, RIGHT, 5):
+        draw_character(x, TOP)
 
 def handle_events():
     for event in get_events():
@@ -43,16 +44,16 @@ def draw_character(x, y):
 
 
 def move_right():
-    for y in range(550, 50, -5):
-        draw_character(750, y)
+    for y in range(TOP, BOTTOM, -5):
+        draw_character(RIGHT, y)
 
 def move_bottom():
-    for x in range(750, 50, -5):
-        draw_character(x, 50)
+    for x in range(RIGHT, LEFT, -5):
+        draw_character(x, BOTTOM)
 
 def move_left():
-    for y in range(50, 550, 5):
-        draw_character(50, y)
+    for y in range(BOTTOM, TOP, 5):
+        draw_character(LEFT, y)
 
 def draw_rectangle():
     move_top()
