@@ -5,13 +5,14 @@ from pico2d import *
 import math
 import os
 
+# 실행 위치와 상관없이 character.png 를 찾도록 스크립트 폴더로 이동
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 WIDTH, HEIGHT = 800, 600
-CX, CY, RADIUS = 400, 300, 200
-LEFT, RIGHT, BOTTOM, TOP = 50, 750, 50, 550
-STEP = 5
-FRAME = 0.01
+CX, CY, RADIUS = 400, 300, 200                # 원운동 중심과 반지름
+LEFT, RIGHT, BOTTOM, TOP = 50, 750, 50, 550   # 사각운동 경계 (삼각형 꼭짓점에도 사용)
+STEP = 5                                      # 직선 이동 한 번의 픽셀 수
+FRAME = 0.01                                  # 프레임 간 지연(초)
 
 open_canvas(WIDTH, HEIGHT)
 character = load_image('character.png')
