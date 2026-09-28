@@ -71,16 +71,16 @@ def move_line(x1, y1, x2, y2):
 
 def move_tri_left():
     # 꼭대기 (400, 550) -> 왼쪽 아래 (50, 50)
-    move_line(400, 550, 50, 50)
+    move_line(CX, TOP, LEFT, BOTTOM)
 
 def move_tri_bottom():
     # 왼쪽 아래 (50, 50) -> 오른쪽 아래 (750, 50)
-    for x in range(50, 750, 5):
-        draw_character(x, 50)
+    for x in range(LEFT, RIGHT, 5):
+        draw_character(x, BOTTOM)
 
 def move_tri_right():
     # 오른쪽 아래 (750, 50) -> 꼭대기 (400, 550)
-    move_line(750, 50, 400, 550)
+    move_line(RIGHT, BOTTOM, CX, TOP)
 
 def draw_triangle():
     move_tri_left()
