@@ -1,3 +1,6 @@
+# LEC06 실습: 캐릭터 원운동, 사각운동, 삼각운동을 무한 반복
+# 조작: ESC 또는 창 닫기로 종료
+
 from pico2d import *
 import math
 import os
