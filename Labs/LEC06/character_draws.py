@@ -21,12 +21,12 @@ def move_top():
     for x in range(50, 750, 5):
         draw_character(x, 550)
 
-def draw_character(x):
+def draw_character(x, y):
     clear_canvas()
-    character.draw(x, 500)
+    character.draw(x, y)
     update_canvas()
     delay(0.01)
-    
+
 
 def move_right():
     print('RIGHT')
