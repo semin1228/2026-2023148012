@@ -5,6 +5,7 @@ import os
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 WIDTH, HEIGHT = 800, 600
+CX, CY, RADIUS = 400, 300, 200
 
 open_canvas(WIDTH, HEIGHT)
 character = load_image('character.png')
@@ -15,8 +16,8 @@ def draw_circle():
 
     for degree in range(360):
         theta = math.radians(degree)
-        x = 400 + 200 * math.cos(theta)
-        y = 300 + 200 * math.sin(theta)
+        x = CX + RADIUS * math.cos(theta)
+        y = CY + RADIUS * math.sin(theta)
         draw_character(x, y)
 
 
