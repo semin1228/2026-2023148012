@@ -54,7 +54,12 @@ def draw_rectangle():
 
 def move_tri_left():
     print('TRI LEFT')
-    pass
+    # 꼭대기 (400, 550) -> 왼쪽 아래 (50, 50)
+    for i in range(100):
+        t = i / 100
+        x = 400 + (50 - 400) * t
+        y = 550 + (50 - 550) * t
+        draw_character(x, y)
 
 def move_tri_bottom():
     print('TRI BOTTOM')
