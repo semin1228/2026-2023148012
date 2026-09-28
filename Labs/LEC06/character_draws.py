@@ -74,7 +74,6 @@ while True:
     draw_circle()
     draw_rectangle()
     draw_triangle()
-    break
 
 delay(1)
 close_canvas()
