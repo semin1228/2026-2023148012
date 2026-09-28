@@ -7,6 +7,7 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 WIDTH, HEIGHT = 800, 600
 CX, CY, RADIUS = 400, 300, 200
 LEFT, RIGHT, BOTTOM, TOP = 50, 750, 50, 550
+FRAME = 0.002
 
 open_canvas(WIDTH, HEIGHT)
 character = load_image('character.png')
@@ -40,7 +41,7 @@ def draw_character(x, y):
     character.draw(x, y)
     update_canvas()
     handle_events()
-    delay(0.002)
+    delay(FRAME)
 
 
 def move_right():
