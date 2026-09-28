@@ -52,14 +52,17 @@ def draw_rectangle():
     pass
 
 
+def move_line(x1, y1, x2, y2):
+    for i in range(100):
+        t = i / 100
+        x = x1 + (x2 - x1) * t
+        y = y1 + (y2 - y1) * t
+        draw_character(x, y)
+
 def move_tri_left():
     print('TRI LEFT')
     # 꼭대기 (400, 550) -> 왼쪽 아래 (50, 50)
-    for i in range(100):
-        t = i / 100
-        x = 400 + (50 - 400) * t
-        y = 550 + (50 - 550) * t
-        draw_character(x, y)
+    move_line(400, 550, 50, 50)
 
 def move_tri_bottom():
     print('TRI BOTTOM')
@@ -70,11 +73,7 @@ def move_tri_bottom():
 def move_tri_right():
     print('TRI RIGHT')
     # 오른쪽 아래 (750, 50) -> 꼭대기 (400, 550)
-    for i in range(100):
-        t = i / 100
-        x = 750 + (400 - 750) * t
-        y = 50 + (550 - 50) * t
-        draw_character(x, y)
+    move_line(750, 50, 400, 550)
 
 def draw_triangle():
     print('TRIANGLE')
