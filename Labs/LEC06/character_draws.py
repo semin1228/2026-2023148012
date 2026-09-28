@@ -19,10 +19,17 @@ def move_top():
     for x in range(50, 750, 5):
         draw_character(x, 550)
 
+def handle_events():
+    for event in get_events():
+        if event.type == SDL_QUIT:
+            close_canvas()
+            exit()
+
 def draw_character(x, y):
     clear_canvas()
     character.draw(x, y)
     update_canvas()
+    handle_events()
     delay(0.002)
 
 
@@ -74,6 +81,3 @@ while True:
     draw_circle()
     draw_rectangle()
     draw_triangle()
-
-delay(1)
-close_canvas()
