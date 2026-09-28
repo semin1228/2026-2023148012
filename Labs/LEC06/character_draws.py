@@ -52,8 +52,23 @@ def draw_rectangle():
     pass
 
 
+def move_tri_left():
+    print('TRI LEFT')
+    pass
+
+def move_tri_bottom():
+    print('TRI BOTTOM')
+    pass
+
+def move_tri_right():
+    print('TRI RIGHT')
+    pass
+
 def draw_triangle():
     print('TRIANGLE')
+    move_tri_left()
+    move_tri_bottom()
+    move_tri_right()
 
 while True:
     draw_circle()
