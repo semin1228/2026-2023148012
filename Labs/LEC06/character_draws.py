@@ -63,7 +63,9 @@ def move_tri_left():
 
 def move_tri_bottom():
     print('TRI BOTTOM')
-    pass
+    # 왼쪽 아래 (50, 50) -> 오른쪽 아래 (750, 50)
+    for x in range(50, 750, 5):
+        draw_character(x, 50)
 
 def move_tri_right():
     print('TRI RIGHT')
