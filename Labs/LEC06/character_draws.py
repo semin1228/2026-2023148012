@@ -43,7 +43,6 @@ def draw_rectangle():
     move_right()
     move_bottom()
     move_left()
-    pass
 
 
 def move_line(x1, y1, x2, y2):
