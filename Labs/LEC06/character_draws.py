@@ -69,7 +69,12 @@ def move_tri_bottom():
 
 def move_tri_right():
     print('TRI RIGHT')
-    pass
+    # 오른쪽 아래 (750, 50) -> 꼭대기 (400, 550)
+    for i in range(100):
+        t = i / 100
+        x = 750 + (400 - 750) * t
+        y = 50 + (550 - 50) * t
+        draw_character(x, y)
 
 def draw_triangle():
     print('TRIANGLE')
