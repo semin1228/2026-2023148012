@@ -8,7 +8,7 @@ WIDTH, HEIGHT = 800, 600
 CX, CY, RADIUS = 400, 300, 200
 LEFT, RIGHT, BOTTOM, TOP = 50, 750, 50, 550
 STEP = 5
-FRAME = 0.002
+FRAME = 0.01
 
 open_canvas(WIDTH, HEIGHT)
 character = load_image('character.png')
