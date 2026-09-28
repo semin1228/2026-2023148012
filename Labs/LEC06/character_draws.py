@@ -7,6 +7,7 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 WIDTH, HEIGHT = 800, 600
 CX, CY, RADIUS = 400, 300, 200
 LEFT, RIGHT, BOTTOM, TOP = 50, 750, 50, 550
+STEP = 5
 FRAME = 0.002
 
 open_canvas(WIDTH, HEIGHT)
@@ -24,7 +25,7 @@ def draw_circle():
 
 
 def move_top():
-    for x in range(LEFT, RIGHT, 5):
+    for x in range(LEFT, RIGHT, STEP):
         draw_character(x, TOP)
 
 def handle_events():
@@ -45,15 +46,15 @@ def draw_character(x, y):
 
 
 def move_right():
-    for y in range(TOP, BOTTOM, -5):
+    for y in range(TOP, BOTTOM, -STEP):
         draw_character(RIGHT, y)
 
 def move_bottom():
-    for x in range(RIGHT, LEFT, -5):
+    for x in range(RIGHT, LEFT, -STEP):
         draw_character(x, BOTTOM)
 
 def move_left():
-    for y in range(BOTTOM, TOP, 5):
+    for y in range(BOTTOM, TOP, STEP):
         draw_character(LEFT, y)
 
 def draw_rectangle():
@@ -76,7 +77,7 @@ def move_tri_left():
 
 def move_tri_bottom():
     # 왼쪽 아래 (50, 50) -> 오른쪽 아래 (750, 50)
-    for x in range(LEFT, RIGHT, 5):
+    for x in range(LEFT, RIGHT, STEP):
         draw_character(x, BOTTOM)
 
 def move_tri_right():
