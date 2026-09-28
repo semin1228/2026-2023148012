@@ -18,6 +18,7 @@ open_canvas(WIDTH, HEIGHT)
 character = load_image('character.png')
 
 
+# ---- 원운동 ----
 
 def draw_circle():
 
@@ -28,9 +29,13 @@ def draw_circle():
         draw_character(x, y)
 
 
+# ---- 사각운동: 상단 -> 오른쪽 -> 하단 -> 왼쪽 ----
+
 def move_top():
     for x in range(LEFT, RIGHT, STEP):
         draw_character(x, TOP)
+
+# ---- 입력과 그리기 ----
 
 def handle_events():
     for event in get_events():
@@ -48,6 +53,8 @@ def draw_character(x, y):
     handle_events()
     delay(FRAME)
 
+
+# ---- 사각운동 (이어서) ----
 
 def move_right():
     for y in range(TOP, BOTTOM, -STEP):
@@ -67,6 +74,8 @@ def draw_rectangle():
     move_bottom()
     move_left()
 
+
+# ---- 삼각운동: 꼭대기 -> 왼쪽 아래 -> 오른쪽 아래 ----
 
 def move_line(x1, y1, x2, y2):
     for i in range(100):
@@ -92,6 +101,8 @@ def draw_triangle():
     move_tri_left()
     move_tri_bottom()
     move_tri_right()
+
+# ---- 메인: 세 운동 무한 반복 ----
 
 while True:
     draw_circle()
