@@ -21,7 +21,7 @@ character = load_image('character.png')
 # ---- 원운동 ----
 
 def draw_circle():
-
+    # 1도씩 각도를 늘리며 원 위의 좌표로 이동
     for degree in range(360):
         theta = math.radians(degree)
         x = CX + RADIUS * math.cos(theta)
@@ -38,6 +38,7 @@ def move_top():
 # ---- 입력과 그리기 ----
 
 def handle_events():
+    # 창 닫기 또는 ESC 입력 시 캔버스를 닫고 종료
     for event in get_events():
         if event.type == SDL_QUIT:
             close_canvas()
@@ -47,6 +48,7 @@ def handle_events():
             exit()
 
 def draw_character(x, y):
+    # 화면을 지우고 (x, y) 에 캐릭터를 그린 뒤 한 프레임 대기
     clear_canvas()
     character.draw(x, y)
     update_canvas()
@@ -78,6 +80,7 @@ def draw_rectangle():
 # ---- 삼각운동: 꼭대기 -> 왼쪽 아래 -> 오른쪽 아래 ----
 
 def move_line(x1, y1, x2, y2):
+    # (x1, y1) 에서 (x2, y2) 직전까지 비율 t 로 100 단계 이동
     for i in range(100):
         t = i / 100
         x = x1 + (x2 - x1) * t
