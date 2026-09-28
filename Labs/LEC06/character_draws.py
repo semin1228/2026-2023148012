@@ -1,5 +1,8 @@
 from pico2d import *
 import math
+import os
+
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 open_canvas(800, 600)
 character = load_image('character.png')
