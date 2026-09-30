@@ -5,6 +5,8 @@
 from pico2d import *
 
 CANVAS_W, CANVAS_H = 800, 600
+REPEAT = 5          # 애니메이션마다 반복할 횟수
+PAUSE_TIME = 1.0    # 반복이 끝난 뒤 멈춰 있는 시간(초)
 SCALE = 4   # 대기 자세 키 82px -> 328px (화면 높이 600 의 절반 이상). 가장 높은 승룡권도 600 안에 들어간다
 
 # 애니메이션 표: (이름, 땅 높이, 프레임 목록)
@@ -40,6 +42,7 @@ running = True
 anim = 0    # 지금 재생 중인 애니메이션 번호
 frame = 0   # 그 애니메이션 안에서의 프레임 번호
 loop = 0    # 지금 애니메이션을 처음부터 끝까지 몇 번 재생했는지
+paused_at = None   # 5회 반복을 마치고 정지한 시각. None 이면 재생 중
 
 
 def handle_events():
@@ -55,10 +58,11 @@ def handle_events():
 
 def next_animation():
     # 다음 애니메이션으로 넘어가고, 마지막 다음엔 처음으로 돌아간다
-    global anim, frame, loop
+    global anim, frame, loop, paused_at
     anim = (anim + 1) % len(ANIMATIONS)
     frame = 0
     loop = 0
+    paused_at = None
 
 
 def anim_height(ground, frames):
@@ -88,11 +92,23 @@ while running:
     draw_frame(ground, frames, left, bottom, w, h, cx)
     update_canvas()
     handle_events()
-    frame += 1
-    if frame == len(frames):   # 마지막 프레임까지 보여 줬으면 한 바퀴 완료
-        frame = 0
-        loop += 1
-        print(f'{name} loop {loop}')
+    if paused_at is not None:
+        # 정지 중에는 마지막 프레임을 그대로 보여 주고, 1초가 지나면 처음부터 다시 재생
+        if get_time() - paused_at >= PAUSE_TIME:
+            paused_at = None
+            frame = 0
+            loop = 0
+    else:
+        frame += 1
+        if frame == len(frames):   # 마지막 프레임까지 보여 줬으면 한 바퀴 완료
+            loop += 1
+            print(f'{name} loop {loop}')
+            if loop == REPEAT:
+                frame = len(frames) - 1   # 마지막 프레임에서 멈춘다
+                paused_at = get_time()
+                print(f'{name} pause')
+            else:
+                frame = 0
     delay(0.15)
 
 close_canvas()
