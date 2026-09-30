@@ -5,6 +5,7 @@
 from pico2d import *
 
 CANVAS_W, CANVAS_H = 800, 600
+SCALE = 4   # 대기 자세 키 82px -> 328px (화면 높이 600 의 절반 이상). 가장 높은 승룡권도 600 안에 들어간다
 
 # 프레임 좌표 (left, bottom, width, height) - pico2d 좌하단 원점 기준
 # find_frames.py 로 ryu_sheet.png 를 분석해서 얻은 값
@@ -29,7 +30,7 @@ sheet = load_image('ryu_sheet.png')
 while running:
     clear_canvas()
     left, bottom, w, h = IDLE_FRAMES[frame]
-    sheet.clip_draw(left, bottom, w, h, CANVAS_W // 2, CANVAS_H // 2)
+    sheet.clip_draw(left, bottom, w, h, CANVAS_W // 2, CANVAS_H // 2, w * SCALE, h * SCALE)
     update_canvas()
     handle_events()
     frame = (frame + 1) % len(IDLE_FRAMES)
