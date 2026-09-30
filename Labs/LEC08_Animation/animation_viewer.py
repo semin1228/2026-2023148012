@@ -48,10 +48,11 @@ frame = 0   # 그 애니메이션 안에서의 프레임 번호
 loop = 0    # 지금 애니메이션을 처음부터 끝까지 몇 번 재생했는지
 paused_at = None   # 5회 반복을 마치고 정지한 시각. None 이면 재생 중
 frame_started = 0.0   # 지금 프레임을 보여 주기 시작한 시각
+show_box = False      # B 키: 프레임 경계 사각형과 몸통 중심선 보기
 
 
 def handle_events():
-    global running
+    global running, show_box
     for event in get_events():
         if event.type == SDL_QUIT:
             running = False
@@ -59,6 +60,8 @@ def handle_events():
             running = False
         elif event.type == SDL_KEYDOWN and event.key == SDLK_SPACE:
             next_animation()
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_b:
+            show_box = not show_box
 
 
 def next_animation():
@@ -95,6 +98,7 @@ def draw_info(name, frames, w, h):
     state = 'PAUSE' if paused_at is not None else f'loop {loop + 1}/{REPEAT}'
     font.draw(20, CANVAS_H - 55, state, (255, 220, 100))
     font.draw(20, CANVAS_H - 85, f'frame {frame + 1}/{len(frames)}  size {w}x{h}', (180, 200, 255))
+    font.draw(20, 20, 'SPACE: next   B: frame box   ESC: quit', (150, 150, 150))
 
 
 def draw_frame(ground, left, bottom, w, h, cx):
@@ -105,6 +109,11 @@ def draw_frame(ground, left, bottom, w, h, cx):
     # 가로는 프레임 중심이 아니라 몸통 중심(cx)을 화면 가운데에 맞춘다
     x = CANVAS_W // 2 + (w / 2 - cx) * SCALE
     sheet.clip_draw(left, bottom, w, h, x, y, w * SCALE, h * SCALE)
+    if show_box:
+        # 프레임마다 잘라 오는 사각형의 크기가 달라지는 것을 눈으로 확인하기 위한 표시
+        half_w, half_h = w * SCALE / 2, h * SCALE / 2
+        draw_rectangle(x - half_w, y - half_h, x + half_w, y + half_h, 255, 60, 60)
+        draw_line(CANVAS_W // 2, GROUND_Y, CANVAS_W // 2, CANVAS_H - TOP_MARGIN, 60, 255, 60)
 
 
 open_canvas(CANVAS_W, CANVAS_H)
