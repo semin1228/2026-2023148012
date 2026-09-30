@@ -1,6 +1,19 @@
 # animation_viewer.py
 # Drill #8 애니메이션 뷰어
-# ryu_sheet.png 의 여러 애니메이션을 화면 중앙에 확대해서 차례로 재생한다.
+# ryu_sheet.png (스트리트 파이터 II 류) 의 애니메이션 6종을 화면 중앙에 4배 확대해서 재생한다.
+# 각 애니메이션은 5회 반복 후 1초 정지하고, 다음 애니메이션으로 넘어가 6종이 무한 반복된다.
+#
+# 조작: SPACE 다음 애니메이션 / B 프레임 경계 보기 / ESC 종료
+#
+# [가산점] 프레임 크기가 프레임마다 다른 시트
+#   - 프레임마다 (left, bottom, w, h) 를 따로 저장해 clip_draw 로 자른다 (33x90 ~ 72x39 등)
+#   - 발 위치: 시트에서 땅보다 떠 있는 만큼(bottom - ground) 올려 그려 발이 출렁이지 않는다
+#   - 몸통 위치: 프레임별 몸통 중심 x(cx) 를 화면 가운데에 맞춰 팔다리를 뻗어도 몸이 제자리에 있다
+# [가산점] 애니메이션마다 프레임 수가 다름
+#   - 3(PUNCH) / 4(IDLE) / 5(WALK, KICK) / 6(JUMP, SHORYUKEN) 프레임을 len(frames) 로 처리한다
+#
+# 시트 준비: Ryu.png -> make_transparent.py (배경 투명) -> ryu_sheet.png
+#           좌표표는 find_frames.py 로 분석해서 얻었다
 
 from pico2d import *
 
@@ -11,6 +24,7 @@ BG_COLOR = (32, 36, 56)      # 배경색
 FLOOR_COLOR = (70, 62, 58)   # 바닥색
 FONT_PATH = 'C:/Windows/Fonts/consola.ttf'   # 정보 표시용 Windows 기본 글꼴
 SCALE = 4   # 대기 자세 키 82px -> 328px (화면 높이 600 의 절반 이상). 가장 높은 승룡권도 600 안에 들어간다
+TOP_MARGIN = 16   # 가장 높이 뜨는 프레임과 화면 위쪽 사이의 여백
 
 # 애니메이션 표: (이름, 땅 높이, 프레임당 시간(초), 프레임 목록)
 # 프레임당 시간은 동작 느낌에 맞춰 정했다: 공격(펀치/킥/승룡권)은 빠르게, 대기는 느리게
@@ -81,13 +95,12 @@ def anim_height(ground, frames):
 
 # 화면에서 발이 닿는 땅의 y. 모든 애니메이션이 같은 바닥에 서도록 하나로 고정한다.
 # 가장 높이 뜨는 동작(승룡권, 136px * 4 = 544px)이 화면 위 여백 TOP_MARGIN 안에 들어오도록 잡는다
-TOP_MARGIN = 16
 GROUND_Y = CANVAS_H - TOP_MARGIN - max(anim_height(g, fs) for _, g, _, fs in ANIMATIONS) * SCALE
 
 
-def draw_background(ground_y):
+def draw_background():
     draw_rectangle(0, 0, CANVAS_W - 1, CANVAS_H - 1, *BG_COLOR, filled=True)
-    draw_rectangle(0, 0, CANVAS_W - 1, ground_y, *FLOOR_COLOR, filled=True)
+    draw_rectangle(0, 0, CANVAS_W - 1, GROUND_Y, *FLOOR_COLOR, filled=True)
 
 
 def draw_info(name, frames, w, h):
@@ -127,7 +140,7 @@ frame_started = get_time()
 while running:
     name, ground, frame_time, frames = ANIMATIONS[anim]
     clear_canvas()
-    draw_background(GROUND_Y)
+    draw_background()
     left, bottom, w, h, cx = frames[frame]
     draw_frame(ground, left, bottom, w, h, cx)
     draw_info(name, frames, w, h)
@@ -146,11 +159,9 @@ while running:
         frame += 1
         if frame == len(frames):   # 마지막 프레임까지 보여 줬으면 한 바퀴 완료
             loop += 1
-            print(f'{name} loop {loop}')
             if loop == REPEAT:
                 frame = len(frames) - 1   # 마지막 프레임에서 멈춘다
                 paused_at = now
-                print(f'{name} pause')
             else:
                 frame = 0
     delay(0.01)
