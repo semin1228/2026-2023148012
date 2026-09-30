@@ -39,6 +39,7 @@ ANIMATIONS = [
 running = True
 anim = 0    # 지금 재생 중인 애니메이션 번호
 frame = 0   # 그 애니메이션 안에서의 프레임 번호
+loop = 0    # 지금 애니메이션을 처음부터 끝까지 몇 번 재생했는지
 
 
 def handle_events():
@@ -54,9 +55,10 @@ def handle_events():
 
 def next_animation():
     # 다음 애니메이션으로 넘어가고, 마지막 다음엔 처음으로 돌아간다
-    global anim, frame
+    global anim, frame, loop
     anim = (anim + 1) % len(ANIMATIONS)
     frame = 0
+    loop = 0
 
 
 def anim_height(ground, frames):
@@ -86,7 +88,11 @@ while running:
     draw_frame(ground, frames, left, bottom, w, h, cx)
     update_canvas()
     handle_events()
-    frame = (frame + 1) % len(frames)
+    frame += 1
+    if frame == len(frames):   # 마지막 프레임까지 보여 줬으면 한 바퀴 완료
+        frame = 0
+        loop += 1
+        print(f'{name} loop {loop}')
     delay(0.15)
 
 close_canvas()
