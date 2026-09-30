@@ -28,6 +28,15 @@ def handle_events():
             running = False
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
             running = False
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_SPACE:
+            next_animation()
+
+
+def next_animation():
+    # 다음 애니메이션으로 넘어가고, 마지막 다음엔 처음으로 돌아간다
+    global anim, frame
+    anim = (anim + 1) % len(ANIMATIONS)
+    frame = 0
 
 
 open_canvas(CANVAS_W, CANVAS_H)
