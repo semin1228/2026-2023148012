@@ -93,11 +93,10 @@ while running:
     update_canvas()
     handle_events()
     if paused_at is not None:
-        # 정지 중에는 마지막 프레임을 그대로 보여 주고, 1초가 지나면 처음부터 다시 재생
+        # 정지 중에는 마지막 프레임을 그대로 보여 주고, 1초가 지나면 다음 애니메이션으로.
+        # next_animation() 이 마지막 다음엔 처음으로 돌아가므로 6종이 무한 반복된다
         if get_time() - paused_at >= PAUSE_TIME:
-            paused_at = None
-            frame = 0
-            loop = 0
+            next_animation()
     else:
         frame += 1
         if frame == len(frames):   # 마지막 프레임까지 보여 줬으면 한 바퀴 완료
