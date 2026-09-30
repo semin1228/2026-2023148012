@@ -76,9 +76,10 @@ def anim_height(ground, frames):
     return max(bottom - ground + h for _, bottom, _, h, _ in frames)
 
 
-def ground_screen_y(ground, frames):
-    # 화면에서 발이 닿는 땅의 y. 애니메이션 전체 높이가 화면 세로 중앙에 오도록 잡는다
-    return CANVAS_H // 2 - anim_height(ground, frames) * SCALE // 2
+# 화면에서 발이 닿는 땅의 y. 모든 애니메이션이 같은 바닥에 서도록 하나로 고정한다.
+# 가장 높이 뜨는 동작(승룡권, 136px * 4 = 544px)이 화면 위 여백 TOP_MARGIN 안에 들어오도록 잡는다
+TOP_MARGIN = 16
+GROUND_Y = CANVAS_H - TOP_MARGIN - max(anim_height(g, fs) for _, g, _, fs in ANIMATIONS) * SCALE
 
 
 def draw_background(ground_y):
@@ -96,12 +97,11 @@ def draw_info(name, frames, w, h):
     font.draw(20, CANVAS_H - 85, f'frame {frame + 1}/{len(frames)}  size {w}x{h}', (180, 200, 255))
 
 
-def draw_frame(ground, frames, left, bottom, w, h, cx):
+def draw_frame(ground, left, bottom, w, h, cx):
     # 프레임 크기가 제각각이라 중심을 고정하면 발이 위아래로 출렁인다.
     # 그래서 화면의 땅 위치를 정하고, 프레임은 시트에서 땅보다 떠 있는 만큼(bottom - ground)만 올려서 그린다.
-    ground_y = ground_screen_y(ground, frames)
     lift = (bottom - ground) * SCALE
-    y = ground_y + lift + h * SCALE // 2    # clip_draw 는 중심 좌표를 받는다
+    y = GROUND_Y + lift + h * SCALE // 2    # clip_draw 는 중심 좌표를 받는다
     # 가로는 프레임 중심이 아니라 몸통 중심(cx)을 화면 가운데에 맞춘다
     x = CANVAS_W // 2 + (w / 2 - cx) * SCALE
     sheet.clip_draw(left, bottom, w, h, x, y, w * SCALE, h * SCALE)
@@ -118,9 +118,9 @@ frame_started = get_time()
 while running:
     name, ground, frame_time, frames = ANIMATIONS[anim]
     clear_canvas()
-    draw_background(ground_screen_y(ground, frames))
+    draw_background(GROUND_Y)
     left, bottom, w, h, cx = frames[frame]
-    draw_frame(ground, frames, left, bottom, w, h, cx)
+    draw_frame(ground, left, bottom, w, h, cx)
     draw_info(name, frames, w, h)
     update_canvas()
     handle_events()
