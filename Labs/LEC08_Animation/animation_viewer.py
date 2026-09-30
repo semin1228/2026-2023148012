@@ -7,6 +7,8 @@ from pico2d import *
 CANVAS_W, CANVAS_H = 800, 600
 REPEAT = 5          # 애니메이션마다 반복할 횟수
 PAUSE_TIME = 1.0    # 반복이 끝난 뒤 멈춰 있는 시간(초)
+BG_COLOR = (32, 36, 56)      # 배경색
+FLOOR_COLOR = (70, 62, 58)   # 바닥색
 SCALE = 4   # 대기 자세 키 82px -> 328px (화면 높이 600 의 절반 이상). 가장 높은 승룡권도 600 안에 들어간다
 
 # 애니메이션 표: (이름, 땅 높이, 프레임당 시간(초), 프레임 목록)
@@ -73,11 +75,20 @@ def anim_height(ground, frames):
     return max(bottom - ground + h for _, bottom, _, h, _ in frames)
 
 
+def ground_screen_y(ground, frames):
+    # 화면에서 발이 닿는 땅의 y. 애니메이션 전체 높이가 화면 세로 중앙에 오도록 잡는다
+    return CANVAS_H // 2 - anim_height(ground, frames) * SCALE // 2
+
+
+def draw_background(ground_y):
+    draw_rectangle(0, 0, CANVAS_W - 1, CANVAS_H - 1, *BG_COLOR, filled=True)
+    draw_rectangle(0, 0, CANVAS_W - 1, ground_y, *FLOOR_COLOR, filled=True)
+
+
 def draw_frame(ground, frames, left, bottom, w, h, cx):
     # 프레임 크기가 제각각이라 중심을 고정하면 발이 위아래로 출렁인다.
     # 그래서 화면의 땅 위치를 정하고, 프레임은 시트에서 땅보다 떠 있는 만큼(bottom - ground)만 올려서 그린다.
-    # 땅 위치는 애니메이션 전체 높이가 화면 세로 중앙에 오도록 잡는다.
-    ground_y = CANVAS_H // 2 - anim_height(ground, frames) * SCALE // 2
+    ground_y = ground_screen_y(ground, frames)
     lift = (bottom - ground) * SCALE
     y = ground_y + lift + h * SCALE // 2    # clip_draw 는 중심 좌표를 받는다
     # 가로는 프레임 중심이 아니라 몸통 중심(cx)을 화면 가운데에 맞춘다
@@ -92,6 +103,7 @@ frame_started = get_time()
 while running:
     name, ground, frame_time, frames = ANIMATIONS[anim]
     clear_canvas()
+    draw_background(ground_screen_y(ground, frames))
     left, bottom, w, h, cx = frames[frame]
     draw_frame(ground, frames, left, bottom, w, h, cx)
     update_canvas()
