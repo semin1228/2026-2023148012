@@ -26,35 +26,37 @@ FONT_PATH = 'C:/Windows/Fonts/consola.ttf'   # 정보 표시용 Windows 기본 �
 SCALE = 4   # 대기 자세 키 82px -> 328px (화면 높이 600 의 절반 이상). 가장 높은 승룡권도 600 안에 들어간다
 TOP_MARGIN = 16   # 가장 높이 뜨는 프레임과 화면 위쪽 사이의 여백
 
-# 애니메이션 표: (이름, 땅 높이, 프레임당 시간(초), 프레임 목록)
+# 애니메이션 표: (이름, 땅 높이, 프레임당 시간(초), 프레임 목록, 프레임별 시간 배율)
 # 프레임당 시간은 동작 느낌에 맞춰 정했다: 공격(펀치/킥/승룡권)은 빠르게, 대기는 느리게
+# 프레임별 시간 배율: 각 프레임은 프레임당 시간 x 배율 만큼 보인다.
+#   원작처럼 공격이 다 뻗은 순간에 잠깐 머물러야 타격감이 살아서 그 프레임만 배율을 키웠다
 # 프레임 좌표는 (left, bottom, width, height, 몸통중심x) - pico2d 좌하단 원점 기준, find_frames.py 로 얻은 값
 # 몸통중심x 는 프레임 왼쪽에서 몸통 중심까지의 거리. 팔다리를 뻗어도 몸이 제자리에 있도록 가로 정렬에 쓴다
 # 땅 높이는 그 동작 줄에서 발이 땅에 닿은 프레임의 bottom 값
 ANIMATIONS = [
     ('IDLE', 1610, 0.18, [
         (5, 1610, 41, 82, 20), (53, 1610, 41, 81, 20), (102, 1610, 41, 80, 19), (151, 1610, 41, 81, 20),
-    ]),
+    ], [1, 1, 1, 1]),
     ('WALK', 1610, 0.12, [
         (221, 1610, 41, 75, 22), (269, 1610, 41, 80, 22), (317, 1610, 41, 80, 22), (365, 1610, 43, 81, 23),
         (413, 1610, 41, 80, 22),
-    ]),
+    ], [1, 1, 1, 1, 1]),
     ('PUNCH', 1495, 0.08, [
         (5, 1495, 41, 81, 20), (54, 1495, 55, 81, 23), (113, 1495, 41, 81, 20),
-    ]),
+    ], [1, 2.5, 1.5]),
     ('KICK', 1247, 0.10, [
         (4, 1247, 42, 81, 11), (53, 1247, 55, 84, 16), (111, 1247, 69, 84, 18), (184, 1247, 57, 70, 15),
         (248, 1247, 42, 73, 11),
-    ]),
+    ], [1, 1, 2.5, 1, 1]),
     # JUMP, SHORYUKEN 은 몸을 돌리거나 뛰어오르는 동작이라 몸통중심x 에 무게중심 값(mass cx)을 쓴다
     ('JUMP', 1023, 0.10, [
         (158, 1023, 33, 90, 13), (205, 1060, 61, 37, 34), (282, 1046, 31, 68, 17), (329, 1061, 72, 39, 33),
         (419, 1043, 43, 74, 22), (474, 1026, 33, 90, 15),
-    ]),
+    ], [1, 1, 1, 1, 1, 1]),
     ('SHORYUKEN', 730, 0.09, [
         (3, 730, 44, 74, 26), (52, 730, 49, 80, 27), (107, 730, 41, 111, 19), (155, 752, 38, 108, 19),
         (207, 765, 29, 101, 14), (256, 730, 44, 94, 18),
-    ]),
+    ], [1, 1, 1, 1, 1, 1]),
 ]
 
 running = True
@@ -96,7 +98,7 @@ def anim_height(ground, frames):
 
 # 화면에서 발이 닿는 땅의 y. 모든 애니메이션이 같은 바닥에 서도록 하나로 고정한다.
 # 가장 높이 뜨는 동작(승룡권, 136px * 4 = 544px)이 화면 위 여백 TOP_MARGIN 안에 들어오도록 잡는다
-GROUND_Y = CANVAS_H - TOP_MARGIN - max(anim_height(g, fs) for _, g, _, fs in ANIMATIONS) * SCALE
+GROUND_Y = CANVAS_H - TOP_MARGIN - max(anim_height(g, fs) for _, g, _, fs, _ in ANIMATIONS) * SCALE
 
 
 def draw_background():
@@ -139,7 +141,7 @@ except IOError:
 frame_started = get_time()
 
 while running:
-    name, ground, frame_time, frames = ANIMATIONS[anim]
+    name, ground, frame_time, frames, holds = ANIMATIONS[anim]
     clear_canvas()
     draw_background()
     left, bottom, w, h, cx = frames[frame]
@@ -155,8 +157,8 @@ while running:
         # next_animation() 이 마지막 다음엔 처음으로 돌아가므로 6종이 무한 반복된다
         if now - paused_at >= PAUSE_TIME:
             next_animation()
-    elif now - frame_started >= frame_time:
-        frame_started += frame_time   # now 로 두면 루프 지연(약 10ms)이 프레임마다 쌓인다
+    elif now - frame_started >= frame_time * holds[frame]:
+        frame_started += frame_time * holds[frame]   # now 로 두면 루프 지연(약 10ms)이 프레임마다 쌓인다
         frame += 1
         if frame == len(frames):   # 마지막 프레임까지 보여 줬으면 한 바퀴 완료
             loop += 1
