@@ -39,6 +39,21 @@ def next_animation():
     frame = 0
 
 
+def anim_height(ground, frames):
+    # 땅에서 그 애니메이션의 가장 높은 지점까지의 높이 (시트 픽셀 단위)
+    return max(bottom - ground + h for _, bottom, _, h in frames)
+
+
+def draw_frame(ground, frames, left, bottom, w, h):
+    # 프레임 크기가 제각각이라 중심을 고정하면 발이 위아래로 출렁인다.
+    # 그래서 화면의 땅 위치를 정하고, 프레임은 시트에서 땅보다 떠 있는 만큼(bottom - ground)만 올려서 그린다.
+    # 땅 위치는 애니메이션 전체 높이가 화면 세로 중앙에 오도록 잡는다.
+    ground_y = CANVAS_H // 2 - anim_height(ground, frames) * SCALE // 2
+    lift = (bottom - ground) * SCALE
+    y = ground_y + lift + h * SCALE // 2    # clip_draw 는 중심 좌표를 받는다
+    sheet.clip_draw(left, bottom, w, h, CANVAS_W // 2, y, w * SCALE, h * SCALE)
+
+
 open_canvas(CANVAS_W, CANVAS_H)
 sheet = load_image('ryu_sheet.png')
 
@@ -46,7 +61,7 @@ while running:
     name, ground, frames = ANIMATIONS[anim]
     clear_canvas()
     left, bottom, w, h = frames[frame]
-    sheet.clip_draw(left, bottom, w, h, CANVAS_W // 2, CANVAS_H // 2, w * SCALE, h * SCALE)
+    draw_frame(ground, frames, left, bottom, w, h)
     update_canvas()
     handle_events()
     frame = (frame + 1) % len(frames)
