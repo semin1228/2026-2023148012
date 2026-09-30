@@ -9,6 +9,7 @@ REPEAT = 5          # 애니메이션마다 반복할 횟수
 PAUSE_TIME = 1.0    # 반복이 끝난 뒤 멈춰 있는 시간(초)
 BG_COLOR = (32, 36, 56)      # 배경색
 FLOOR_COLOR = (70, 62, 58)   # 바닥색
+FONT_PATH = 'C:/Windows/Fonts/consola.ttf'   # 정보 표시용 Windows 기본 글꼴
 SCALE = 4   # 대기 자세 키 82px -> 328px (화면 높이 600 의 절반 이상). 가장 높은 승룡권도 600 안에 들어간다
 
 # 애니메이션 표: (이름, 땅 높이, 프레임당 시간(초), 프레임 목록)
@@ -85,6 +86,16 @@ def draw_background(ground_y):
     draw_rectangle(0, 0, CANVAS_W - 1, ground_y, *FLOOR_COLOR, filled=True)
 
 
+def draw_info(name, frames, w, h):
+    # 채점/발표 때 확인하기 쉽도록 이름, 반복 횟수, 프레임 번호와 현재 프레임 크기를 표시한다
+    if font is None:
+        return
+    font.draw(20, CANVAS_H - 25, f'{anim + 1}/{len(ANIMATIONS)}  {name}', (255, 255, 255))
+    state = 'PAUSE' if paused_at is not None else f'loop {loop + 1}/{REPEAT}'
+    font.draw(20, CANVAS_H - 55, state, (255, 220, 100))
+    font.draw(20, CANVAS_H - 85, f'frame {frame + 1}/{len(frames)}  size {w}x{h}', (180, 200, 255))
+
+
 def draw_frame(ground, frames, left, bottom, w, h, cx):
     # 프레임 크기가 제각각이라 중심을 고정하면 발이 위아래로 출렁인다.
     # 그래서 화면의 땅 위치를 정하고, 프레임은 시트에서 땅보다 떠 있는 만큼(bottom - ground)만 올려서 그린다.
@@ -98,6 +109,10 @@ def draw_frame(ground, frames, left, bottom, w, h, cx):
 
 open_canvas(CANVAS_W, CANVAS_H)
 sheet = load_image('ryu_sheet.png')
+try:
+    font = load_font(FONT_PATH, 22)
+except IOError:
+    font = None   # 글꼴이 없는 환경에서도 애니메이션 재생은 되도록 정보 표시만 생략
 frame_started = get_time()
 
 while running:
@@ -106,6 +121,7 @@ while running:
     draw_background(ground_screen_y(ground, frames))
     left, bottom, w, h, cx = frames[frame]
     draw_frame(ground, frames, left, bottom, w, h, cx)
+    draw_info(name, frames, w, h)
     update_canvas()
     handle_events()
     # delay(frame_time) 으로 기다리면 그동안 입력/정지 확인이 멈추고 1초 정지도 frame_time 단위로 어긋난다.
