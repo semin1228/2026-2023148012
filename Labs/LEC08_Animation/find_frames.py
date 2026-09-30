@@ -2,6 +2,7 @@
 # ryu_sheet.png 에서 캐릭터 프레임의 사각형 좌표를 찾아 출력하는 분석 도구.
 # 프레임마다 크기와 위치가 제각각이라 격자로 자를 수 없어서, 투명하지 않은 픽셀끼리
 # 이어진 덩어리를 찾아 그 경계 사각형을 프레임으로 본다. 출력은 (left, bottom, w, h, 몸통중심x).
+# 몸통중심x 는 어두운 픽셀 기준이고, 회전/점프 동작용 무게중심 기준 값은 주석(mass cx)으로 함께 출력한다.
 # (게임 실행에는 필요 없음, Pillow 필요)
 # 사용법: python find_frames.py [top_y] [bottom_y]   <- 시트의 해당 세로 범위만 출력
 
@@ -11,6 +12,7 @@ from PIL import Image
 SHEET = 'ryu_sheet.png'
 MIN_W, MIN_H = 4, 30   # 구분선(폭 1~2px), 글씨/떨어진 그림자(높이 15px 이하)를 걸러내는 기준
 DARK = 40              # 이보다 어두운 픽셀(검은 띠, 머리카락, 윤곽선)의 평균 x 를 몸통 중심으로 본다
+SHADOW_COLOR = (96, 96, 88)   # 발밑 그림자 색. 무게중심 계산에서 뺀다
 
 
 def find_blobs(img):
@@ -47,6 +49,14 @@ def body_center_x(px, l, t, r, b):
     return round(sum(xs) / len(xs)) if xs else (r - l + 1) // 2
 
 
+def mass_center_x(px, l, t, r, b):
+    # 그림자를 뺀 몸 전체 픽셀의 평균 x (무게중심).
+    # 공중에서 몸을 돌리거나 뛰어오르는 동작은 어두운 픽셀 기준이 머리카락/주먹에 끌려가 틀어지므로 이 값을 쓴다
+    xs = [x - l for y in range(t, b + 1) for x in range(l, r + 1)
+          if px[x, y][3] != 0 and px[x, y][:3] != SHADOW_COLOR]
+    return round(sum(xs) / len(xs)) if xs else (r - l + 1) // 2
+
+
 def main():
     y_from = int(sys.argv[1]) if len(sys.argv) > 1 else 0
     y_to = int(sys.argv[2]) if len(sys.argv) > 2 else 99999
@@ -73,7 +83,8 @@ def main():
             w, h = r - l + 1, b - t + 1
             # pico2d 는 원점이 좌하단이라 bottom = 시트높이 - 1 - 아래쪽y 로 바꿔서 출력
             cx = body_center_x(px, l, t, r, b)
-            print(f'    ({l}, {sheet_h - 1 - b}, {w}, {h}, {cx}),   # x={l}..{r}, y={t}..{b}')
+            mx = mass_center_x(px, l, t, r, b)
+            print(f'    ({l}, {sheet_h - 1 - b}, {w}, {h}, {cx}),   # x={l}..{r}, y={t}..{b}, mass cx={mx}')
 
 
 if __name__ == '__main__':
