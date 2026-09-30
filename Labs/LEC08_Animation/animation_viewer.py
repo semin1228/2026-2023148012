@@ -44,6 +44,7 @@ anim = 0    # 지금 재생 중인 애니메이션 번호
 frame = 0   # 그 애니메이션 안에서의 프레임 번호
 loop = 0    # 지금 애니메이션을 처음부터 끝까지 몇 번 재생했는지
 paused_at = None   # 5회 반복을 마치고 정지한 시각. None 이면 재생 중
+frame_started = 0.0   # 지금 프레임을 보여 주기 시작한 시각
 
 
 def handle_events():
@@ -59,11 +60,12 @@ def handle_events():
 
 def next_animation():
     # 다음 애니메이션으로 넘어가고, 마지막 다음엔 처음으로 돌아간다
-    global anim, frame, loop, paused_at
+    global anim, frame, loop, paused_at, frame_started
     anim = (anim + 1) % len(ANIMATIONS)
     frame = 0
     loop = 0
     paused_at = None
+    frame_started = get_time()
 
 
 def anim_height(ground, frames):
@@ -85,6 +87,7 @@ def draw_frame(ground, frames, left, bottom, w, h, cx):
 
 open_canvas(CANVAS_W, CANVAS_H)
 sheet = load_image('ryu_sheet.png')
+frame_started = get_time()
 
 while running:
     name, ground, frame_time, frames = ANIMATIONS[anim]
@@ -93,22 +96,26 @@ while running:
     draw_frame(ground, frames, left, bottom, w, h, cx)
     update_canvas()
     handle_events()
+    # delay(frame_time) 으로 기다리면 그동안 입력/정지 확인이 멈추고 1초 정지도 frame_time 단위로 어긋난다.
+    # 루프는 짧게 돌리고, 시각을 비교해서 frame_time 이 지났을 때만 다음 프레임으로 넘긴다.
+    now = get_time()
     if paused_at is not None:
         # 정지 중에는 마지막 프레임을 그대로 보여 주고, 1초가 지나면 다음 애니메이션으로.
         # next_animation() 이 마지막 다음엔 처음으로 돌아가므로 6종이 무한 반복된다
-        if get_time() - paused_at >= PAUSE_TIME:
+        if now - paused_at >= PAUSE_TIME:
             next_animation()
-    else:
+    elif now - frame_started >= frame_time:
+        frame_started += frame_time   # now 로 두면 루프 지연(약 10ms)이 프레임마다 쌓인다
         frame += 1
         if frame == len(frames):   # 마지막 프레임까지 보여 줬으면 한 바퀴 완료
             loop += 1
             print(f'{name} loop {loop}')
             if loop == REPEAT:
                 frame = len(frames) - 1   # 마지막 프레임에서 멈춘다
-                paused_at = get_time()
+                paused_at = now
                 print(f'{name} pause')
             else:
                 frame = 0
-    delay(frame_time)
+    delay(0.01)
 
 close_canvas()
