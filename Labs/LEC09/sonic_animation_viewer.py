@@ -9,6 +9,8 @@ FRAME_TIME = 0.1   # 프레임 1장을 보여 주는 시간(초)
 REPEAT = 5   # 동작마다 반복할 횟수
 PAUSE_TIME = 1.0   # 반복이 끝난 뒤 마지막 프레임에서 쉬는 시간(초)
 BG_COLOR = (40, 44, 70)   # 소닉의 파란색과 겹치지 않는 어두운 남색
+GROUND_Y = 300   # 바닥선 y. 모든 프레임의 아래쪽(발끝)을 여기에 맞춘다
+FLOOR_COLOR = (64, 70, 100)   # 바닥선 아래를 칠하는 색
 
 # 동작 표: (이름, 프레임 목록). 동작을 늘릴 때 이 표에 한 줄씩 추가만 하면 된다
 # 프레임 좌표는 (left, bottom, w, h) - pico2d 좌하단 원점 기준
@@ -78,9 +80,13 @@ def update():
 def draw():
     clear_canvas()
     draw_rectangle(0, 0, CANVAS_W, CANVAS_H, *BG_COLOR, filled=True)
+    draw_rectangle(0, 0, CANVAS_W, GROUND_Y, *FLOOR_COLOR, filled=True)
     # 시트의 y 는 위가 0 이지만 pico2d 는 아래가 0 이라, 줄 아래쪽 y=77 은 bottom = 525 - 77 - 1 = 447
     left, bottom, w, h = ANIMATIONS[anim][1][frame]
-    sheet.clip_draw(left, bottom, w, h, CANVAS_W // 2, CANVAS_H // 2, w * SCALE, h * SCALE)
+    # clip_draw 는 중심 좌표를 받는다. 중심을 화면 가운데에 고정하면 높이가 다른 동작끼리 발 위치가 달라지므로,
+    # 프레임 아래쪽이 바닥선에 오도록 중심 y 를 바닥선 + (그린 높이 / 2) 로 잡는다
+    y = GROUND_Y + h * SCALE / 2
+    sheet.clip_draw(left, bottom, w, h, CANVAS_W // 2, y, w * SCALE, h * SCALE)
     update_canvas()
 
 
