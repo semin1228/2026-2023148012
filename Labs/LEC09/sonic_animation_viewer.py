@@ -11,6 +11,7 @@ PAUSE_TIME = 1.0   # 반복이 끝난 뒤 마지막 프레임에서 쉬는 시�
 BG_COLOR = (40, 44, 70)   # 소닉의 파란색과 겹치지 않는 어두운 남색
 GROUND_Y = 300   # 바닥선 y. 모든 프레임의 아래쪽(발끝)을 여기에 맞춘다
 FLOOR_COLOR = (64, 70, 100)   # 바닥선 아래를 칠하는 색
+FONT_PATH = 'C:/Windows/Fonts/consola.ttf'   # 정보 표시용 Windows 기본 글꼴
 
 # 동작 표: (이름, 프레임 목록). 동작을 늘릴 때 이 표에 한 줄씩 추가만 하면 된다
 # 프레임 좌표는 (left, bottom, w, h) - pico2d 좌하단 원점 기준
@@ -114,11 +115,21 @@ def draw():
     # 프레임 아래쪽이 바닥선에 오도록 중심 y 를 바닥선 + (그린 높이 / 2) 로 잡는다
     y = GROUND_Y + h * SCALE / 2
     sheet.clip_draw(left, bottom, w, h, CANVAS_W // 2, y, w * SCALE, h * SCALE)
+    draw_info()
     update_canvas()
+
+
+def draw_info():
+    # 5회 반복과 1초 쉬기가 지켜지는지 눈으로 셀 수 있도록 지금 상태를 글자로 보여 준다
+    name = ANIMATIONS[anim][0]
+    state = 'PAUSE' if paused else f'{repeat_count + 1}/{REPEAT}'   # repeat_count 는 끝낸 횟수라 +1
+    font.draw(30, CANVAS_H - 30, f'{name} {state}', (255, 255, 255))
+    font.draw(30, CANVAS_H - 70, f'animation {anim + 1}/{len(ANIMATIONS)}', (180, 190, 230))
 
 
 open_canvas(CANVAS_W, CANVAS_H)
 sheet = load_image('sonic-sprite.png')   # 399 x 525, 배경 투명
+font = load_font(FONT_PATH, 32)
 
 running = True
 anim = 0    # 지금 재생 중인 동작 번호
