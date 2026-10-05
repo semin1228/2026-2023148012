@@ -88,7 +88,7 @@ ANIMATIONS = [
         (1, 154, 24, 45), (31, 154, 29, 45), (65, 154, 20, 45), (90, 154, 25, 45),
         (119, 154, 25, 45), (149, 154, 20, 45),
     ]),
-    ('HURT', 0.15, 40, 0, [   # 8번 줄 뒤 2프레임. 피격 - 느리게, 맞고 오른쪽으로 날아간다
+    ('HURT', 0.15, 0, 125, [   # 8번 줄 뒤 2프레임. 피격 - 느리게, 화면 위 끝(바닥선 300 + 125 x 4 = 800)에서 떨어진다
         # 키가 작아서 이 2프레임의 범위 y 341~368 로 잘라 바닥에 닿게 했다
         (184, 156, 40, 28), (232, 156, 39, 28),
     ]),
@@ -134,7 +134,7 @@ def start_x(index):
 def update():
     # delay 로 프레임 시간을 맞추면 컴퓨터 속도나 그리기 시간에 따라 빠르기가 달라진다.
     # 루프는 짧게 돌리고, 실제로 그 동작의 프레임 시간이 지났을 때만 다음 프레임으로 넘긴다
-    global anim, frame, repeat_count, paused, pause_started, frame_started, x, last_update
+    global anim, frame, repeat_count, paused, pause_started, frame_started, x, last_update, lift, anim_started
     name, frame_time, speed, fall, frames = ANIMATIONS[anim]
     now = get_time()
     dt = now - last_update   # 지난 update 뒤로 흐른 시간. 이동 거리를 시간에 비례하게 만든다
@@ -148,10 +148,18 @@ def update():
             frame = 0
             repeat_count = 0
             frame_started = pause_started + PAUSE_TIME
+            anim_started = frame_started
             x = start_x(anim)
+            lift = ANIMATIONS[anim][3] * SCALE   # 떨어지는 동작은 첫 프레임부터 위에 그려지게 바로 올려 둔다
         return   # 쉬는 동안은 움직이지 않는다
     # 프레임 전환과 같은 시간(get_time) 기준으로 움직여서 애니메이션과 이동이 함께 맞는다
     x = wrap_x(x + speed * SCALE * dt)
+    if fall > 0:
+        # 중력으로 떨어지듯 처음엔 천천히, 바닥에 가까울수록 빠르게 내려온다.
+        # 남은 높이를 1 - (t / T)^2 로 줄여, 5회 재생이 끝나는 순간(t = T) 정확히 바닥선에 닿게 한다
+        play_time = len(frames) * frame_time * REPEAT
+        t = min(now - anim_started, play_time)
+        lift = fall * SCALE * (1 - (t / play_time) ** 2)
     if now - frame_started >= frame_time:
         frame_started += frame_time   # now 로 두면 루프 지연이 프레임마다 쌓인다
         frame += 1
@@ -161,6 +169,7 @@ def update():
                 frame = len(frames) - 1   # 0 으로 되돌리지 않고 마지막 프레임에서 멈춘다
                 paused = True
                 pause_started = frame_started
+                lift = 0   # 바닥에 내려앉은 채로 쉰다
             else:
                 frame = 0
 
@@ -207,7 +216,8 @@ paused = False   # 5회 반복을 마치고 쉬는 중인지
 pause_started = 0.0   # 쉬기 시작한 시각
 frame_started = get_time()   # 지금 프레임을 보여 주기 시작한 시각
 x = start_x(anim)   # 캐릭터의 화면 x. 이동 동작에서 바뀐다
-lift = 0   # 바닥선에서 떠 있는 높이(화면 px). 낙하 동작에서 바뀐다
+lift = ANIMATIONS[anim][3] * SCALE   # 바닥선에서 떠 있는 높이(화면 px). 낙하 동작에서 바뀐다
+anim_started = frame_started   # 지금 동작을 시작한 시각. 낙하 높이 계산에 쓴다
 last_update = get_time()   # 마지막으로 update 한 시각
 while running:
     draw()
