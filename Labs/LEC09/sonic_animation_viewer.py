@@ -3,15 +3,24 @@
 
 from pico2d import *
 
+# 화면
 CANVAS_W, CANVAS_H = 1200, 800
 SCALE = 4   # 과제 조건: 원본의 4배로 그린다
+GROUND_Y = 300   # 바닥선 y. 모든 프레임의 아래쪽(발끝)을 여기에 맞춘다
+BG_COLOR = (40, 44, 70)   # 소닉의 파란색과 겹치지 않는 어두운 남색
+FLOOR_COLOR = (64, 70, 100)   # 바닥선 아래를 칠하는 색
+
+# 재생
 FRAME_TIME = 0.1   # 프레임 1장을 보여 주는 시간(초)
 REPEAT = 5   # 동작마다 반복할 횟수
 PAUSE_TIME = 1.0   # 반복이 끝난 뒤 마지막 프레임에서 쉬는 시간(초)
-BG_COLOR = (40, 44, 70)   # 소닉의 파란색과 겹치지 않는 어두운 남색
-GROUND_Y = 300   # 바닥선 y. 모든 프레임의 아래쪽(발끝)을 여기에 맞춘다
-FLOOR_COLOR = (64, 70, 100)   # 바닥선 아래를 칠하는 색
+LOOP_DELAY = 0.01   # 루프 한 번마다 쉬는 시간. 프레임 시간과 상관없이 입력 확인을 자주 하려고 짧게 둔다
+
+# 글자
 FONT_PATH = 'C:/Windows/Fonts/consola.ttf'   # 정보 표시용 Windows 기본 글꼴
+FONT_SIZE = 32
+TEXT_COLOR = (255, 255, 255)   # 동작 이름, 반복 횟수
+SUB_TEXT_COLOR = (180, 190, 230)   # 동작 순번
 
 # 동작 표: (이름, 프레임 목록). 동작을 늘릴 때 이 표에 한 줄씩 추가만 하면 된다
 # 프레임 좌표는 (left, bottom, w, h) - pico2d 좌하단 원점 기준
@@ -105,6 +114,14 @@ def update():
                 frame = 0
 
 
+def draw_info():
+    # 5회 반복과 1초 쉬기가 지켜지는지 눈으로 셀 수 있도록 지금 상태를 글자로 보여 준다
+    name = ANIMATIONS[anim][0]
+    state = 'PAUSE' if paused else f'{repeat_count + 1}/{REPEAT}'   # repeat_count 는 끝낸 횟수라 +1
+    font.draw(30, CANVAS_H - 30, f'{name} {state}', TEXT_COLOR)
+    font.draw(30, CANVAS_H - 70, f'animation {anim + 1}/{len(ANIMATIONS)}', SUB_TEXT_COLOR)
+
+
 def draw():
     clear_canvas()
     draw_rectangle(0, 0, CANVAS_W, CANVAS_H, *BG_COLOR, filled=True)
@@ -119,17 +136,9 @@ def draw():
     update_canvas()
 
 
-def draw_info():
-    # 5회 반복과 1초 쉬기가 지켜지는지 눈으로 셀 수 있도록 지금 상태를 글자로 보여 준다
-    name = ANIMATIONS[anim][0]
-    state = 'PAUSE' if paused else f'{repeat_count + 1}/{REPEAT}'   # repeat_count 는 끝낸 횟수라 +1
-    font.draw(30, CANVAS_H - 30, f'{name} {state}', (255, 255, 255))
-    font.draw(30, CANVAS_H - 70, f'animation {anim + 1}/{len(ANIMATIONS)}', (180, 190, 230))
-
-
 open_canvas(CANVAS_W, CANVAS_H)
 sheet = load_image('sonic-sprite.png')   # 399 x 525, 배경 투명
-font = load_font(FONT_PATH, 32)
+font = load_font(FONT_PATH, FONT_SIZE)
 
 running = True
 anim = 0    # 지금 재생 중인 동작 번호
@@ -142,6 +151,6 @@ while running:
     draw()
     handle_events()
     update()
-    delay(0.01)
+    delay(LOOP_DELAY)
 
 close_canvas()
