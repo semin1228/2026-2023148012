@@ -1,22 +1,28 @@
 # sonic_animation_viewer.py
 # LEC09 애니메이션 뷰어
-# sonic-sprite.png 에 들어 있는 소닉의 동작 12개를 화면 가운데에 원본의 4배로 재생한다.
+# sonic-sprite.png 에 들어 있는 소닉의 동작 12개를 원본의 4배로 재생한다.
 # 각 동작은 5회 반복한 뒤 마지막 프레임에서 1초 쉬고 다음 동작으로 넘어가며,
 # 마지막 동작(WAVE) 다음엔 첫 동작(IDLE)으로 돌아가 창을 닫을 때까지 계속된다.
 #
 # 실행: 이 파일이 있는 폴더(Labs/LEC09)에서 python sonic_animation_viewer.py
 # 조작: ESC 또는 창 닫기 - 종료
-# 화면: 왼쪽 위에 '동작 이름 반복 횟수/5' (쉬는 중이면 PAUSE)와 동작 순번을 표시한다
+# 화면: 왼쪽 위에 '동작 이름 반복 횟수/5' (쉬는 중이면 PAUSE), 동작 순번, 프레임 시간과 이동 속도를 표시한다
 #
 # 동작 (시트의 줄 순서, 8번 줄과 10번 줄은 각각 둘로 나눴다)
 #   IDLE 11, WALK 12, SKID 6, SPIN 9, ROLL 6, DASH 6, PEEL 6, TURN 6, HURT 2, PUSH 8, RAISE 2, WAVE 2 프레임 (합계 76)
-#   0.1초/프레임 기준 한 바퀴: 76 x 0.1 x 5회 + 1초 x 11동작 = 49초
+#   프레임 시간은 동작 느낌에 맞춰 0.04 ~ 0.15초로 다르고, 한 바퀴는 약 46초다
+#   (동작마다 프레임 수 x 프레임 시간 x 5회 의 합 33.9초 + 1초 x 12동작)
+#
+# 이동
+#   - WALK, SKID, ROLL, DASH, PEEL, HURT, PUSH 는 애니메이션과 동시에 오른쪽으로 이동하고, 나머지는 제자리다
+#   - 이동 동작은 5회를 마칠 때 화면 가운데에 오도록 그만큼 뒤에서 출발해, 1초 쉬는 모습은 항상 가운데에 보인다
+#   - 화면 양 끝은 이어져 있어서, 끝에 걸친 몸의 잘린 부분은 반대쪽 끝에 바로 보인다
 #
 # 시트 특징과 처리
 #   - 프레임마다 폭과 간격이 달라서 프레임 좌표를 하나씩 표(ANIMATIONS)에 적었다
 #   - 프레임 높이는 줄 전체로 잘라서, 같은 동작 안에서 발이 떠 있는 프레임은 떠 있는 그대로 보인다
 #   - 줄마다 높이가 달라서 프레임 아래쪽을 바닥선(GROUND_Y)에 맞춰 그린다
-#   - 프레임 전환과 1초 쉬기는 get_time() 경과 시간으로 재서 컴퓨터 속도와 관계없이 같은 빠르기로 재생된다
+#   - 프레임 전환, 1초 쉬기, 이동은 모두 get_time() 경과 시간으로 재서 컴퓨터 속도와 관계없이 같은 빠르기로 재생된다
 
 from pico2d import *
 
@@ -160,10 +166,12 @@ def update():
 
 def draw_info():
     # 5회 반복과 1초 쉬기가 지켜지는지 눈으로 셀 수 있도록 지금 상태를 글자로 보여 준다
-    name = ANIMATIONS[anim][0]
+    name, frame_time, speed, frames = ANIMATIONS[anim]
     state = 'PAUSE' if paused else f'{repeat_count + 1}/{REPEAT}'   # repeat_count 는 끝낸 횟수라 +1
     font.draw(30, CANVAS_H - 30, f'{name} {state}', TEXT_COLOR)
     font.draw(30, CANVAS_H - 70, f'animation {anim + 1}/{len(ANIMATIONS)}', SUB_TEXT_COLOR)
+    # 동작마다 다른 프레임 시간과 이동 속도(화면 px/초)를 확인할 수 있게 함께 보여 준다
+    font.draw(30, CANVAS_H - 110, f'frame {frame_time:.2f}s  speed {speed * SCALE}px/s', SUB_TEXT_COLOR)
 
 
 def draw():
