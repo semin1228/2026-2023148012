@@ -7,6 +7,7 @@ CANVAS_W, CANVAS_H = 1200, 800
 SCALE = 4   # 과제 조건: 원본의 4배로 그린다
 FRAME_TIME = 0.1   # 프레임 1장을 보여 주는 시간(초)
 REPEAT = 5   # 동작마다 반복할 횟수
+PAUSE_TIME = 1.0   # 반복이 끝난 뒤 마지막 프레임에서 쉬는 시간(초)
 BG_COLOR = (40, 44, 70)   # 소닉의 파란색과 겹치지 않는 어두운 남색
 
 # 동작 표: (이름, 프레임 목록). 동작을 늘릴 때 이 표에 한 줄씩 추가만 하면 된다
@@ -44,6 +45,8 @@ running = True
 anim = 0    # 지금 재생 중인 동작 번호
 frame = 0   # 지금 그리는 프레임 번호
 repeat_count = 0   # 지금 동작을 처음부터 끝까지 몇 번 재생했는지
+paused = False   # 5회 반복을 마치고 쉬는 중인지
+pause_started = 0.0   # 쉬기 시작한 시각
 frame_started = get_time()   # 지금 프레임을 보여 주기 시작한 시각
 while running:
     clear_canvas()
@@ -56,16 +59,27 @@ while running:
     handle_events()
     # delay 로 프레임 시간을 맞추면 컴퓨터 속도나 그리기 시간에 따라 빠르기가 달라진다.
     # 루프는 짧게 돌리고, 실제로 FRAME_TIME 이 지났을 때만 다음 프레임으로 넘긴다
-    if get_time() - frame_started >= FRAME_TIME:
-        frame_started += FRAME_TIME   # get_time() 으로 두면 루프 지연이 프레임마다 쌓인다
+    now = get_time()
+    if paused:
+        # 쉬는 동안엔 마지막 프레임을 그대로 보여 주고, PAUSE_TIME 이 지나면 다음 동작으로.
+        # 마지막 동작 다음엔 % 로 첫 동작에 돌아가 무한 반복된다
+        if now - pause_started >= PAUSE_TIME:
+            paused = False
+            anim = (anim + 1) % len(ANIMATIONS)
+            frame = 0
+            repeat_count = 0
+            frame_started = pause_started + PAUSE_TIME
+    elif now - frame_started >= FRAME_TIME:
+        frame_started += FRAME_TIME   # now 로 두면 루프 지연이 프레임마다 쌓인다
         frame += 1
         if frame == len(frames):   # 마지막 프레임까지 보여 줬으면 1회 반복 완료
-            frame = 0
             repeat_count += 1
             if repeat_count == REPEAT:
-                # 다음 동작으로. 마지막 동작 다음엔 % 로 첫 동작에 돌아가 무한 반복된다
-                anim = (anim + 1) % len(ANIMATIONS)
-                repeat_count = 0
+                frame = len(frames) - 1   # 0 으로 되돌리지 않고 마지막 프레임에서 멈춘다
+                paused = True
+                pause_started = frame_started
+            else:
+                frame = 0
     delay(0.01)
 
 close_canvas()
