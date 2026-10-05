@@ -7,6 +7,15 @@ CANVAS_W, CANVAS_H = 1200, 800
 SCALE = 4   # 과제 조건: 원본의 4배로 그린다
 BG_COLOR = (40, 44, 70)   # 소닉의 파란색과 겹치지 않는 어두운 남색
 
+# 1번 줄(대기) 프레임 좌표 (left, bottom, w, h) - pico2d 좌하단 원점 기준
+# 프레임마다 폭과 간격이 달라서 일정한 간격으로 계산할 수 없고, 하나씩 적는다.
+# 높이는 줄 전체(y 39~77)로 잘라서 같은 줄의 프레임은 발 위치가 그대로 유지된다
+IDLE_FRAMES = [
+    (1, 447, 29, 39), (31, 447, 26, 39), (58, 447, 28, 39), (86, 447, 30, 39),
+    (118, 447, 30, 39), (150, 447, 30, 39), (182, 447, 29, 39), (211, 447, 29, 39),
+    (240, 447, 29, 39), (270, 447, 24, 39), (302, 447, 29, 39),
+]
+
 
 def handle_events():
     global running
@@ -22,12 +31,13 @@ open_canvas(CANVAS_W, CANVAS_H)
 sheet = load_image('sonic-sprite.png')   # 399 x 525, 배경 투명
 
 running = True
+frame = 0   # 지금 그리는 프레임 번호
 while running:
     clear_canvas()
     draw_rectangle(0, 0, CANVAS_W, CANVAS_H, *BG_COLOR, filled=True)
-    # 1번 줄(대기)의 첫 프레임만 잘라 그린다.
     # 시트의 y 는 위가 0 이지만 pico2d 는 아래가 0 이라, 줄 아래쪽 y=77 은 bottom = 525 - 77 - 1 = 447
-    sheet.clip_draw(1, 447, 29, 39, CANVAS_W // 2, CANVAS_H // 2, 29 * SCALE, 39 * SCALE)
+    left, bottom, w, h = IDLE_FRAMES[frame]
+    sheet.clip_draw(left, bottom, w, h, CANVAS_W // 2, CANVAS_H // 2, w * SCALE, h * SCALE)
     update_canvas()
     handle_events()
     delay(0.01)
