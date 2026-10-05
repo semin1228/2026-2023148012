@@ -4,6 +4,7 @@
 from pico2d import *
 
 CANVAS_W, CANVAS_H = 1200, 800
+BG_COLOR = (40, 44, 70)   # 소닉의 파란색과 겹치지 않는 어두운 남색
 
 
 def handle_events():
@@ -21,6 +22,7 @@ open_canvas(CANVAS_W, CANVAS_H)
 running = True
 while running:
     clear_canvas()
+    draw_rectangle(0, 0, CANVAS_W, CANVAS_H, *BG_COLOR, filled=True)
     update_canvas()
     handle_events()
     delay(0.01)
