@@ -5,16 +5,24 @@ from pico2d import *
 
 CANVAS_W, CANVAS_H = 1200, 800
 
+
+def handle_events():
+    global running
+    # 이벤트를 꺼내 주지 않으면 창이 응답 없음 상태가 된다
+    for event in get_events():
+        if event.type == SDL_QUIT:
+            running = False
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
+            running = False
+
+
 open_canvas(CANVAS_W, CANVAS_H)
 
 running = True
 while running:
     clear_canvas()
     update_canvas()
-    # 이벤트를 꺼내 주지 않으면 창이 응답 없음 상태가 된다
-    for event in get_events():
-        if event.type == SDL_QUIT:
-            running = False
+    handle_events()
     delay(0.01)
 
 close_canvas()
