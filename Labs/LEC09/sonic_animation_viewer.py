@@ -26,6 +26,7 @@ SCALE = 4   # 과제 조건: 원본의 4배로 그린다
 GROUND_Y = 300   # 바닥선 y. 모든 프레임의 아래쪽(발끝)을 여기에 맞춘다
 BG_COLOR = (40, 44, 70)   # 소닉의 파란색과 겹치지 않는 어두운 남색
 FLOOR_COLOR = (64, 70, 100)   # 바닥선 아래를 칠하는 색
+WRAP_MARGIN = 100   # 화면 밖으로 이만큼 나가면 반대편에서 들어온다. 가장 넓은 프레임(160px)의 절반보다 크게
 
 # 재생
 REPEAT = 5   # 동작마다 반복할 횟수
@@ -131,6 +132,11 @@ def update():
         return   # 쉬는 동안은 움직이지 않는다
     # 프레임 전환과 같은 시간(get_time) 기준으로 움직여서 애니메이션과 이동이 함께 맞는다
     x += speed * SCALE * dt
+    # 몸이 화면 밖으로 완전히 나가면 반대편 밖에서 다시 들어오게 한다
+    if x > CANVAS_W + WRAP_MARGIN:
+        x -= CANVAS_W + 2 * WRAP_MARGIN
+    elif x < -WRAP_MARGIN:
+        x += CANVAS_W + 2 * WRAP_MARGIN
     if now - frame_started >= frame_time:
         frame_started += frame_time   # now 로 두면 루프 지연이 프레임마다 쌓인다
         frame += 1
