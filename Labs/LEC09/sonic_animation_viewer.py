@@ -1,0 +1,20 @@
+# sonic_animation_viewer.py
+# LEC09 애니메이션 뷰어 - sonic-sprite.png 의 동작을 재생한다
+
+from pico2d import *
+
+CANVAS_W, CANVAS_H = 1200, 800
+
+open_canvas(CANVAS_W, CANVAS_H)
+
+running = True
+while running:
+    clear_canvas()
+    update_canvas()
+    # 이벤트를 꺼내 주지 않으면 창이 응답 없음 상태가 된다
+    for event in get_events():
+        if event.type == SDL_QUIT:
+            running = False
+    delay(0.01)
+
+close_canvas()
