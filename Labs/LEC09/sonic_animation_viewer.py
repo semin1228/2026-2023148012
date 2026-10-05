@@ -14,9 +14,10 @@
 #   (동작마다 프레임 수 x 프레임 시간 x 5회 의 합 33.9초 + 1초 x 12동작)
 #
 # 이동
-#   - WALK, SKID, ROLL, DASH, PEEL, HURT, PUSH 는 애니메이션과 동시에 오른쪽으로 이동하고, 나머지는 제자리다
-#   - 이동 동작은 5회를 마칠 때 화면 가운데에 오도록 그만큼 뒤에서 출발해, 1초 쉬는 모습은 항상 가운데에 보인다
-#   - 화면 양 끝은 이어져 있어서, 끝에 걸친 몸의 잘린 부분은 반대쪽 끝에 바로 보인다
+#   - WALK, SKID, ROLL, DASH, PEEL, PUSH 는 애니메이션과 동시에 오른쪽으로 이동하고, 나머지는 제자리다
+#   - 이동 동작은 가운데보다 (5회 이동 거리 / 2) 왼쪽에서 출발해 같은 거리만큼 오른쪽에서 끝난다.
+#     출발 위치와 끝 위치가 가운데를 기준으로 대칭이고, 몸이 화면 밖으로 나가지 않는다
+#   - HURT 는 화면 위쪽에서 중력처럼 떨어져 5회가 끝날 때 바닥에 닿는다
 #
 # 시트 특징과 처리
 #   - 프레임마다 폭과 간격이 달라서 프레임 좌표를 하나씩 표(ANIMATIONS)에 적었다
@@ -118,18 +119,13 @@ def handle_events():
             running = False
 
 
-def wrap_x(x):
-    # 화면 왼쪽 끝과 오른쪽 끝이 이어져 있다고 보고 x 를 0 ~ CANVAS_W 사이로 맞춘다.
-    # 나머지(%)로 계산해 많이 벗어나도 한 번에 맞는다
-    return x % CANVAS_W
-
-
 def start_x(index):
-    # 가운데에서 출발하면 빠른 동작은 화면 밖에서 5회를 마쳐, 1초 쉬는 모습이 안 보였다.
-    # 그래서 5회 동안 갈 거리만큼 뒤에서 출발해, 반복을 마치고 쉴 때는 항상 화면 가운데에 오게 한다
+    # 이동 동작이 화면 밖으로 나가지 않도록, 5회 동안 갈 거리의 절반만큼 가운데보다 왼쪽에서 출발한다.
+    # 그러면 끝나는 위치는 가운데보다 같은 거리만큼 오른쪽이라, 출발 위치와 끝 위치가 가운데를 기준으로 대칭이 된다.
+    # 가장 멀리 가는 WALK(1008px)도 몸 양 끝이 화면 안(22 ~ 1178)에 들어온다. 제자리 동작은 거리가 0 이라 가운데
     name, frame_time, speed, fall, frames = ANIMATIONS[index]
     distance = speed * SCALE * len(frames) * frame_time * REPEAT
-    return wrap_x(CANVAS_W // 2 - distance)
+    return CANVAS_W // 2 - distance / 2
 
 
 def update():
@@ -154,7 +150,7 @@ def update():
             lift = ANIMATIONS[anim][3] * SCALE   # 떨어지는 동작은 첫 프레임부터 위에 그려지게 바로 올려 둔다
         return   # 쉬는 동안은 움직이지 않는다
     # 프레임 전환과 같은 시간(get_time) 기준으로 움직여서 애니메이션과 이동이 함께 맞는다
-    x = wrap_x(x + speed * SCALE * dt)
+    x += speed * SCALE * dt
     if fall > 0:
         # 중력으로 떨어지듯 처음엔 천천히, 바닥에 가까울수록 빠르게 내려온다.
         # 남은 높이를 1 - (t / T)^2 로 줄여, 5회 재생이 끝나는 순간(t = T) 정확히 바닥선에 닿게 한다
@@ -195,12 +191,6 @@ def draw():
     # 프레임 아래쪽이 바닥선에 오도록 중심 y 를 바닥선 + (그린 높이 / 2) 로 잡는다
     y = GROUND_Y + lift + h * SCALE / 2   # lift: 떨어지는 동작에서 바닥선 위로 떠 있는 높이
     sheet.clip_draw(left, bottom, w, h, x, y, w * SCALE, h * SCALE)
-    # 화면 끝에 걸쳐 몸 일부가 밖으로 나가면, 잘린 부분이 반대쪽 끝에 바로 보이도록 한 번 더 그린다
-    half_w = w * SCALE / 2
-    if x + half_w > CANVAS_W:
-        sheet.clip_draw(left, bottom, w, h, x - CANVAS_W, y, w * SCALE, h * SCALE)
-    elif x - half_w < 0:
-        sheet.clip_draw(left, bottom, w, h, x + CANVAS_W, y, w * SCALE, h * SCALE)
     draw_info()
     update_canvas()
 
