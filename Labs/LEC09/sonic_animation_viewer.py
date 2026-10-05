@@ -24,7 +24,9 @@ running = True
 while running:
     clear_canvas()
     draw_rectangle(0, 0, CANVAS_W, CANVAS_H, *BG_COLOR, filled=True)
-    sheet.draw(CANVAS_W // 2, CANVAS_H // 2)   # 시트가 제대로 읽혔는지 먼저 전체를 본다
+    # 1번 줄(대기)의 첫 프레임만 잘라 그린다.
+    # 시트의 y 는 위가 0 이지만 pico2d 는 아래가 0 이라, 줄 아래쪽 y=77 은 bottom = 525 - 77 - 1 = 447
+    sheet.clip_draw(1, 447, 29, 39, CANVAS_W // 2, CANVAS_H // 2)
     update_canvas()
     handle_events()
     delay(0.01)
