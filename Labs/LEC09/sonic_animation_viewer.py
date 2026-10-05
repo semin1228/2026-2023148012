@@ -26,7 +26,6 @@ SCALE = 4   # 과제 조건: 원본의 4배로 그린다
 GROUND_Y = 300   # 바닥선 y. 모든 프레임의 아래쪽(발끝)을 여기에 맞춘다
 BG_COLOR = (40, 44, 70)   # 소닉의 파란색과 겹치지 않는 어두운 남색
 FLOOR_COLOR = (64, 70, 100)   # 바닥선 아래를 칠하는 색
-WRAP_MARGIN = 100   # 화면 밖으로 이만큼 나가면 반대편에서 들어온다. 가장 넓은 프레임(160px)의 절반보다 크게
 
 # 재생
 REPEAT = 5   # 동작마다 반복할 횟수
@@ -112,10 +111,9 @@ def handle_events():
 
 
 def wrap_x(x):
-    # 몸이 화면 밖으로 완전히 나가면 반대편 밖에서 다시 들어오게 한다.
-    # 화면 양쪽에 WRAP_MARGIN 을 붙인 폭을 한 바퀴로 보고 나머지(%)로 계산해, 많이 벗어나도 한 번에 맞춘다
-    span = CANVAS_W + 2 * WRAP_MARGIN
-    return (x + WRAP_MARGIN) % span - WRAP_MARGIN
+    # 화면 왼쪽 끝과 오른쪽 끝이 이어져 있다고 보고 x 를 0 ~ CANVAS_W 사이로 맞춘다.
+    # 나머지(%)로 계산해 많이 벗어나도 한 번에 맞는다
+    return x % CANVAS_W
 
 
 def start_x(index):
@@ -178,6 +176,12 @@ def draw():
     # 프레임 아래쪽이 바닥선에 오도록 중심 y 를 바닥선 + (그린 높이 / 2) 로 잡는다
     y = GROUND_Y + h * SCALE / 2
     sheet.clip_draw(left, bottom, w, h, x, y, w * SCALE, h * SCALE)
+    # 화면 끝에 걸쳐 몸 일부가 밖으로 나가면, 잘린 부분이 반대쪽 끝에 바로 보이도록 한 번 더 그린다
+    half_w = w * SCALE / 2
+    if x + half_w > CANVAS_W:
+        sheet.clip_draw(left, bottom, w, h, x - CANVAS_W, y, w * SCALE, h * SCALE)
+    elif x - half_w < 0:
+        sheet.clip_draw(left, bottom, w, h, x + CANVAS_W, y, w * SCALE, h * SCALE)
     draw_info()
     update_canvas()
 
