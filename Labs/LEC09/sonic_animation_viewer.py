@@ -5,6 +5,7 @@ from pico2d import *
 
 CANVAS_W, CANVAS_H = 1200, 800
 SCALE = 4   # 과제 조건: 원본의 4배로 그린다
+FRAME_TIME = 0.1   # 프레임 1장을 보여 주는 시간(초)
 BG_COLOR = (40, 44, 70)   # 소닉의 파란색과 겹치지 않는 어두운 남색
 
 # 1번 줄(대기) 프레임 좌표 (left, bottom, w, h) - pico2d 좌하단 원점 기준
@@ -32,6 +33,7 @@ sheet = load_image('sonic-sprite.png')   # 399 x 525, 배경 투명
 
 running = True
 frame = 0   # 지금 그리는 프레임 번호
+frame_started = get_time()   # 지금 프레임을 보여 주기 시작한 시각
 while running:
     clear_canvas()
     draw_rectangle(0, 0, CANVAS_W, CANVAS_H, *BG_COLOR, filled=True)
@@ -40,7 +42,11 @@ while running:
     sheet.clip_draw(left, bottom, w, h, CANVAS_W // 2, CANVAS_H // 2, w * SCALE, h * SCALE)
     update_canvas()
     handle_events()
-    frame = (frame + 1) % len(IDLE_FRAMES)   # 마지막 프레임 다음엔 첫 프레임으로
-    delay(0.1)
+    # delay 로 프레임 시간을 맞추면 컴퓨터 속도나 그리기 시간에 따라 빠르기가 달라진다.
+    # 루프는 짧게 돌리고, 실제로 FRAME_TIME 이 지났을 때만 다음 프레임으로 넘긴다
+    if get_time() - frame_started >= FRAME_TIME:
+        frame_started += FRAME_TIME   # get_time() 으로 두면 루프 지연이 프레임마다 쌓인다
+        frame = (frame + 1) % len(IDLE_FRAMES)   # 마지막 프레임 다음엔 첫 프레임으로
+    delay(0.01)
 
 close_canvas()
