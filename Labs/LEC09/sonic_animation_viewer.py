@@ -38,27 +38,11 @@ def handle_events():
             running = False
 
 
-open_canvas(CANVAS_W, CANVAS_H)
-sheet = load_image('sonic-sprite.png')   # 399 x 525, 배경 투명
-
-running = True
-anim = 0    # 지금 재생 중인 동작 번호
-frame = 0   # 지금 그리는 프레임 번호
-repeat_count = 0   # 지금 동작을 처음부터 끝까지 몇 번 재생했는지
-paused = False   # 5회 반복을 마치고 쉬는 중인지
-pause_started = 0.0   # 쉬기 시작한 시각
-frame_started = get_time()   # 지금 프레임을 보여 주기 시작한 시각
-while running:
-    clear_canvas()
-    draw_rectangle(0, 0, CANVAS_W, CANVAS_H, *BG_COLOR, filled=True)
-    # 시트의 y 는 위가 0 이지만 pico2d 는 아래가 0 이라, 줄 아래쪽 y=77 은 bottom = 525 - 77 - 1 = 447
-    name, frames = ANIMATIONS[anim]
-    left, bottom, w, h = frames[frame]
-    sheet.clip_draw(left, bottom, w, h, CANVAS_W // 2, CANVAS_H // 2, w * SCALE, h * SCALE)
-    update_canvas()
-    handle_events()
+def update():
     # delay 로 프레임 시간을 맞추면 컴퓨터 속도나 그리기 시간에 따라 빠르기가 달라진다.
     # 루프는 짧게 돌리고, 실제로 FRAME_TIME 이 지났을 때만 다음 프레임으로 넘긴다
+    global anim, frame, repeat_count, paused, pause_started, frame_started
+    frames = ANIMATIONS[anim][1]
     now = get_time()
     if paused:
         # 쉬는 동안엔 마지막 프레임을 그대로 보여 주고, PAUSE_TIME 이 지나면 다음 동작으로.
@@ -80,6 +64,31 @@ while running:
                 pause_started = frame_started
             else:
                 frame = 0
+
+
+def draw():
+    clear_canvas()
+    draw_rectangle(0, 0, CANVAS_W, CANVAS_H, *BG_COLOR, filled=True)
+    # 시트의 y 는 위가 0 이지만 pico2d 는 아래가 0 이라, 줄 아래쪽 y=77 은 bottom = 525 - 77 - 1 = 447
+    left, bottom, w, h = ANIMATIONS[anim][1][frame]
+    sheet.clip_draw(left, bottom, w, h, CANVAS_W // 2, CANVAS_H // 2, w * SCALE, h * SCALE)
+    update_canvas()
+
+
+open_canvas(CANVAS_W, CANVAS_H)
+sheet = load_image('sonic-sprite.png')   # 399 x 525, 배경 투명
+
+running = True
+anim = 0    # 지금 재생 중인 동작 번호
+frame = 0   # 지금 그리는 프레임 번호
+repeat_count = 0   # 지금 동작을 처음부터 끝까지 몇 번 재생했는지
+paused = False   # 5회 반복을 마치고 쉬는 중인지
+pause_started = 0.0   # 쉬기 시작한 시각
+frame_started = get_time()   # 지금 프레임을 보여 주기 시작한 시각
+while running:
+    draw()
+    handle_events()
+    update()
     delay(0.01)
 
 close_canvas()
