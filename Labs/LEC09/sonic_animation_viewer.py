@@ -4,6 +4,7 @@
 from pico2d import *
 
 CANVAS_W, CANVAS_H = 1200, 800
+SCALE = 4   # 과제 조건: 원본의 4배로 그린다
 BG_COLOR = (40, 44, 70)   # 소닉의 파란색과 겹치지 않는 어두운 남색
 
 
@@ -26,7 +27,7 @@ while running:
     draw_rectangle(0, 0, CANVAS_W, CANVAS_H, *BG_COLOR, filled=True)
     # 1번 줄(대기)의 첫 프레임만 잘라 그린다.
     # 시트의 y 는 위가 0 이지만 pico2d 는 아래가 0 이라, 줄 아래쪽 y=77 은 bottom = 525 - 77 - 1 = 447
-    sheet.clip_draw(1, 447, 29, 39, CANVAS_W // 2, CANVAS_H // 2)
+    sheet.clip_draw(1, 447, 29, 39, CANVAS_W // 2, CANVAS_H // 2, 29 * SCALE, 39 * SCALE)
     update_canvas()
     handle_events()
     delay(0.01)
