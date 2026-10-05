@@ -18,11 +18,13 @@ def handle_events():
 
 
 open_canvas(CANVAS_W, CANVAS_H)
+sheet = load_image('sonic-sprite.png')   # 399 x 525, 배경 투명
 
 running = True
 while running:
     clear_canvas()
     draw_rectangle(0, 0, CANVAS_W, CANVAS_H, *BG_COLOR, filled=True)
+    sheet.draw(CANVAS_W // 2, CANVAS_H // 2)   # 시트가 제대로 읽혔는지 먼저 전체를 본다
     update_canvas()
     handle_events()
     delay(0.01)
