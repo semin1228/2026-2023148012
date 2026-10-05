@@ -40,6 +40,7 @@ while running:
     sheet.clip_draw(left, bottom, w, h, CANVAS_W // 2, CANVAS_H // 2, w * SCALE, h * SCALE)
     update_canvas()
     handle_events()
-    delay(0.01)
+    frame = (frame + 1) % len(IDLE_FRAMES)   # 마지막 프레임 다음엔 첫 프레임으로
+    delay(0.1)
 
 close_canvas()
