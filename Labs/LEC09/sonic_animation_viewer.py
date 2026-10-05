@@ -111,6 +111,21 @@ def handle_events():
             running = False
 
 
+def wrap_x(x):
+    # 몸이 화면 밖으로 완전히 나가면 반대편 밖에서 다시 들어오게 한다.
+    # 화면 양쪽에 WRAP_MARGIN 을 붙인 폭을 한 바퀴로 보고 나머지(%)로 계산해, 많이 벗어나도 한 번에 맞춘다
+    span = CANVAS_W + 2 * WRAP_MARGIN
+    return (x + WRAP_MARGIN) % span - WRAP_MARGIN
+
+
+def start_x(index):
+    # 가운데에서 출발하면 빠른 동작은 화면 밖에서 5회를 마쳐, 1초 쉬는 모습이 안 보였다.
+    # 그래서 5회 동안 갈 거리만큼 뒤에서 출발해, 반복을 마치고 쉴 때는 항상 화면 가운데에 오게 한다
+    name, frame_time, speed, frames = ANIMATIONS[index]
+    distance = speed * SCALE * len(frames) * frame_time * REPEAT
+    return wrap_x(CANVAS_W // 2 - distance)
+
+
 def update():
     # delay 로 프레임 시간을 맞추면 컴퓨터 속도나 그리기 시간에 따라 빠르기가 달라진다.
     # 루프는 짧게 돌리고, 실제로 그 동작의 프레임 시간이 지났을 때만 다음 프레임으로 넘긴다
@@ -128,15 +143,10 @@ def update():
             frame = 0
             repeat_count = 0
             frame_started = pause_started + PAUSE_TIME
-            x = CANVAS_W // 2   # 동작마다 화면 가운데에서 시작한다
+            x = start_x(anim)
         return   # 쉬는 동안은 움직이지 않는다
     # 프레임 전환과 같은 시간(get_time) 기준으로 움직여서 애니메이션과 이동이 함께 맞는다
-    x += speed * SCALE * dt
-    # 몸이 화면 밖으로 완전히 나가면 반대편 밖에서 다시 들어오게 한다
-    if x > CANVAS_W + WRAP_MARGIN:
-        x -= CANVAS_W + 2 * WRAP_MARGIN
-    elif x < -WRAP_MARGIN:
-        x += CANVAS_W + 2 * WRAP_MARGIN
+    x = wrap_x(x + speed * SCALE * dt)
     if now - frame_started >= frame_time:
         frame_started += frame_time   # now 로 두면 루프 지연이 프레임마다 쌓인다
         frame += 1
@@ -183,7 +193,7 @@ repeat_count = 0   # 지금 동작을 처음부터 끝까지 몇 번 재생했�
 paused = False   # 5회 반복을 마치고 쉬는 중인지
 pause_started = 0.0   # 쉬기 시작한 시각
 frame_started = get_time()   # 지금 프레임을 보여 주기 시작한 시각
-x = CANVAS_W // 2   # 캐릭터의 화면 x. 이동 동작에서 바뀐다
+x = start_x(anim)   # 캐릭터의 화면 x. 이동 동작에서 바뀐다
 last_update = get_time()   # 마지막으로 update 한 시각
 while running:
     draw()
