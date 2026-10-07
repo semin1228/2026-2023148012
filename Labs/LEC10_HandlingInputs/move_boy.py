@@ -1,8 +1,17 @@
 # move_boy.py
 # Drill #9 소년 상하좌우 이동 및 방향 바꾸기
+# 배경 TUK_GROUND.png 위에서 animation_sheet.png 의 소년을 방향키로 움직인다.
 # 게임 루프는 수업 노트대로 입력 처리(handle_events) -> 상태 갱신(update) -> 화면 출력(draw) 으로 나눈다.
 #
+# 채점 기준과 구현 위치
+#   상하좌우 이동      handle_events: KEYDOWN 이면 dir_x/dir_y 에 +-1, KEYUP 이면 되돌림 (수업의 dir 방식)
+#                      update: 매 프레임 dir 방향으로 SPEED 만큼 이동 (대각선도 같은 속도)
+#   IDLE 애니메이션    update: 움직이지 않으면 바라보는 방향(face)의 IDLE 줄을 재생
+#   이동 애니메이션    update: 좌우 이동은 그 방향 달리기, 위아래 이동은 기존 face 방향 달리기
+#   화면 경계          update: 실제 그림 크기만큼 여백을 두고 x, y 를 clamp
+#
 # 조작: 방향키 이동 / I 정보 표시 켜고 끄기 / ESC 종료
+# 실행: python move_boy.py   (테스트: python test_move_boy.py)
 
 import math
 import os
