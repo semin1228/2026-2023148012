@@ -46,9 +46,14 @@ def handle_events():
 
 
 def update():
-    global x, y, frame, face
+    global x, y, frame, face, action
     if dir_x != 0:
         face = dir_x   # 좌우로 움직일 때만 바라보는 방향을 바꾼다
+    # 위아래로만 움직일 때는 dir_x 가 0 이므로 기존에 바라보던 방향(face)으로 달린다
+    if dir_x != 0 or dir_y != 0:
+        action = RUN_RIGHT if face == 1 else RUN_LEFT
+    else:
+        action = IDLE_RIGHT if face == 1 else IDLE_LEFT
     x += dir_x * SPEED
     y += dir_y * SPEED   # pico2d 는 y 가 위로 증가하므로 위 키(+1)가 위로 간다
     frame = (frame + 1) % 8
@@ -57,11 +62,6 @@ def update():
 def draw():
     clear_canvas()
     tuk_ground.draw(TUK_WIDTH // 2, TUK_HEIGHT // 2)
-    # 위아래로만 움직일 때는 dir_x 가 0 이므로 기존에 바라보던 방향(face)으로 달린다
-    if dir_x != 0 or dir_y != 0:
-        action = RUN_RIGHT if face == 1 else RUN_LEFT
-    else:
-        action = IDLE_RIGHT if face == 1 else IDLE_LEFT
     character.clip_draw(frame * 100, action, 100, 100, x, y)
     update_canvas()
 
@@ -75,6 +75,7 @@ x, y = TUK_WIDTH // 2, TUK_HEIGHT // 2
 frame = 0
 dir_x, dir_y = 0, 0   # +1: 오른쪽/위, -1: 왼쪽/아래, 0: 정지
 face = 1   # 바라보는 방향. 1: 오른쪽, -1: 왼쪽
+action = IDLE_RIGHT   # 지금 재생할 시트 줄(bottom)
 
 while running:
     handle_events()
