@@ -10,6 +10,7 @@ TUK_WIDTH, TUK_HEIGHT = 1280, 1024   # 배경 TUK_GROUND.png 크기에 캔버스
 
 # animation_sheet.png 는 100x100 프레임 8개짜리 줄이 4개. pico2d 좌하단 원점 기준 각 줄의 bottom
 IDLE_RIGHT, IDLE_LEFT = 300, 200
+RUN_RIGHT, RUN_LEFT = 100, 0
 SPEED = 10   # 한 프레임(0.05초)에 움직이는 거리. 초당 200 픽셀
 
 
@@ -54,7 +55,13 @@ def update():
 def draw():
     clear_canvas()
     tuk_ground.draw(TUK_WIDTH // 2, TUK_HEIGHT // 2)
-    character.clip_draw(frame * 100, IDLE_RIGHT, 100, 100, x, y)
+    if dir_x > 0:
+        action = RUN_RIGHT
+    elif dir_x < 0:
+        action = RUN_LEFT
+    else:
+        action = IDLE_RIGHT
+    character.clip_draw(frame * 100, action, 100, 100, x, y)
     update_canvas()
 
 
