@@ -2,7 +2,7 @@
 # Drill #9 소년 상하좌우 이동 및 방향 바꾸기
 # 게임 루프는 수업 노트대로 입력 처리(handle_events) -> 상태 갱신(update) -> 화면 출력(draw) 으로 나눈다.
 #
-# 조작: 방향키 이동 / ESC 종료
+# 조작: 방향키 이동 / I 정보 표시 켜고 끄기 / ESC 종료
 
 import math
 
@@ -29,7 +29,7 @@ def handle_events():
     # 이벤트에서는 이동 상태(dir_x, dir_y)만 바꾸고, 실제 이동은 update 에서 매 프레임 한다.
     # 키를 누르면 그 방향 값을 더하고, 떼면 더했던 값을 되돌린다 (수업의 dir 방식을 상하로 확장).
     # 반대 방향 키를 함께 누르면 상쇄되어 0(정지)이 된다
-    global running, dir_x, dir_y
+    global running, dir_x, dir_y, show_info
     events = get_events()
     for event in events:
         if event.type == SDL_QUIT:
@@ -43,6 +43,8 @@ def handle_events():
                 dir_y += 1
             elif event.key == SDLK_DOWN:
                 dir_y -= 1
+            elif event.key == SDLK_i:
+                show_info = not show_info
             elif event.key == SDLK_ESCAPE:
                 running = False
         elif event.type == SDL_KEYUP:
@@ -80,12 +82,12 @@ def update():
 
 def draw_info():
     # 채점 때 확인하기 쉽도록 지금 동작과 위치를 표시한다
-    if font is None:
+    if font is None or not show_info:
         return
     # 배경 그림이 복잡해서 글씨가 묻히지 않도록 어두운 사각형을 먼저 깐다
-    draw_rectangle(10, TUK_HEIGHT - 70, 340, TUK_HEIGHT - 10, 0, 0, 0, filled=True)
+    draw_rectangle(10, TUK_HEIGHT - 70, 400, TUK_HEIGHT - 10, 0, 0, 0, filled=True)
     font.draw(20, TUK_HEIGHT - 25, f'{ACTION_NAMES[action]}  ({round(x)}, {round(y)})', (255, 255, 255))
-    font.draw(20, TUK_HEIGHT - 55, 'ARROW: move   ESC: quit', (255, 255, 200))
+    font.draw(20, TUK_HEIGHT - 55, 'ARROW: move   I: info   ESC: quit', (255, 255, 200))
 
 
 def draw():
@@ -110,6 +112,7 @@ frame = 0
 dir_x, dir_y = 0, 0   # +1: 오른쪽/위, -1: 왼쪽/아래, 0: 정지
 face = 1   # 바라보는 방향. 1: 오른쪽, -1: 왼쪽
 action = IDLE_RIGHT   # 지금 재생할 시트 줄(bottom)
+show_info = True   # I 키로 켜고 끄는 정보 표시
 
 while running:
     handle_events()
