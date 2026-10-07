@@ -4,9 +4,11 @@
 # 창이 잠깐 떴다가 닫힌다. (게임 실행에는 필요 없음)
 # 사용법: python test_move_boy.py
 
+import os
+
 import pico2d
 
-GAME = 'move_boy.py'
+GAME = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'move_boy.py')
 KEYS = {'L': pico2d.SDLK_LEFT, 'R': pico2d.SDLK_RIGHT, 'U': pico2d.SDLK_UP, 'D': pico2d.SDLK_DOWN}
 ROWS = {300: 'IDLE_R', 200: 'IDLE_L', 100: 'RUN_R', 0: 'RUN_L'}
 
@@ -38,7 +40,7 @@ def run(frames, script):
     pico2d.get_events = get_events
     pico2d.delay = lambda t: None
     pico2d.Image.clip_draw = clip_draw
-    exec(open(GAME, encoding='utf-8').read(), {'__name__': '__main__'})
+    exec(open(GAME, encoding='utf-8').read(), {'__name__': '__main__', '__file__': GAME})
     return log
 
 

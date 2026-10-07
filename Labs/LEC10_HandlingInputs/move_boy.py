@@ -5,6 +5,7 @@
 # 조작: 방향키 이동 / I 정보 표시 켜고 끄기 / ESC 종료
 
 import math
+import os
 
 from pico2d import *
 
@@ -97,6 +98,10 @@ def draw():
     draw_info()
     update_canvas()
 
+
+# 이미지는 상대경로('TUK_GROUND.png')로 읽는다. 다른 폴더에서 실행하거나 더블클릭해도
+# 찾을 수 있도록 작업 폴더를 이 파일이 있는 폴더로 옮겨 둔다
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 open_canvas(TUK_WIDTH, TUK_HEIGHT)
 tuk_ground = load_image('TUK_GROUND.png')
