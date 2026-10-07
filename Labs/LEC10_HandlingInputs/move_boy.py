@@ -4,6 +4,8 @@
 #
 # 조작: 방향키 이동 / ESC 종료
 
+import math
+
 from pico2d import *
 
 TUK_WIDTH, TUK_HEIGHT = 1280, 1024   # 배경 TUK_GROUND.png 크기에 캔버스를 맞춘다
@@ -58,8 +60,11 @@ def update():
         action = RUN_RIGHT if face == 1 else RUN_LEFT
     else:
         action = IDLE_RIGHT if face == 1 else IDLE_LEFT
-    x += dir_x * SPEED
-    y += dir_y * SPEED   # pico2d 는 y 가 위로 증가하므로 위 키(+1)가 위로 간다
+    # 대각선은 그냥 더하면 sqrt(2) 배 빨라지므로 방향 길이로 나눠 어느 방향이든 같은 속도로 움직인다
+    length = math.sqrt(dir_x ** 2 + dir_y ** 2)
+    if length > 0:
+        x += dir_x / length * SPEED
+        y += dir_y / length * SPEED   # pico2d 는 y 가 위로 증가하므로 위 키(+1)가 위로 간다
     x = clamp(MARGIN_LEFT, x, TUK_WIDTH - MARGIN_RIGHT)   # 화면 경계에 닿으면 더 나가지 않는다
     y = clamp(MARGIN_BOTTOM, y, TUK_HEIGHT - MARGIN_TOP)
     frame = (frame + 1) % 8
