@@ -57,9 +57,12 @@ def update():
         face = dir_x   # 좌우로 움직일 때만 바라보는 방향을 바꾼다
     # 위아래로만 움직일 때는 dir_x 가 0 이므로 기존에 바라보던 방향(face)으로 달린다
     if dir_x != 0 or dir_y != 0:
-        action = RUN_RIGHT if face == 1 else RUN_LEFT
+        new_action = RUN_RIGHT if face == 1 else RUN_LEFT
     else:
-        action = IDLE_RIGHT if face == 1 else IDLE_LEFT
+        new_action = IDLE_RIGHT if face == 1 else IDLE_LEFT
+    if new_action != action:
+        action = new_action
+        frame = -1   # 아래에서 1 을 더해 새 동작은 0 번 프레임부터 재생된다
     # 대각선은 그냥 더하면 sqrt(2) 배 빨라지므로 방향 길이로 나눠 어느 방향이든 같은 속도로 움직인다
     length = math.sqrt(dir_x ** 2 + dir_y ** 2)
     if length > 0:
