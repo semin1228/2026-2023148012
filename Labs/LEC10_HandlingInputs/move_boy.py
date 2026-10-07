@@ -57,14 +57,11 @@ def update():
 def draw():
     clear_canvas()
     tuk_ground.draw(TUK_WIDTH // 2, TUK_HEIGHT // 2)
-    if dir_x > 0:
-        action = RUN_RIGHT
-    elif dir_x < 0:
-        action = RUN_LEFT
-    elif face == 1:
-        action = IDLE_RIGHT
+    # 위아래로만 움직일 때는 dir_x 가 0 이므로 기존에 바라보던 방향(face)으로 달린다
+    if dir_x != 0 or dir_y != 0:
+        action = RUN_RIGHT if face == 1 else RUN_LEFT
     else:
-        action = IDLE_LEFT
+        action = IDLE_RIGHT if face == 1 else IDLE_LEFT
     character.clip_draw(frame * 100, action, 100, 100, x, y)
     update_canvas()
 
