@@ -13,11 +13,14 @@ TUK_WIDTH, TUK_HEIGHT = 1280, 1024   # 배경 TUK_GROUND.png 크기에 캔버스
 # animation_sheet.png 는 100x100 프레임 8개짜리 줄이 4개. pico2d 좌하단 원점 기준 각 줄의 bottom
 IDLE_RIGHT, IDLE_LEFT = 300, 200
 RUN_RIGHT, RUN_LEFT = 100, 0
+FRAME_SIZE = 100    # 프레임 한 칸의 가로, 세로 크기
+FRAME_COUNT = 8     # 한 줄의 프레임 수
+FRAME_TIME = 0.05   # 한 프레임을 보여 주는 시간(초)
 # 프레임 중심에서 실제 그림이 있는 끝까지의 거리 (32 프레임 전체의 투명하지 않은 영역으로 잼).
 # 100x100 프레임에는 투명 여백이 있어서 50 으로 막으면 화면 끝에 닿기 전에 멈춰 보인다
 MARGIN_LEFT, MARGIN_RIGHT = 32, 34
 MARGIN_BOTTOM, MARGIN_TOP = 39, 41
-SPEED = 10   # 한 프레임(0.05초)에 움직이는 거리. 초당 200 픽셀
+SPEED = 10   # 한 프레임(FRAME_TIME)에 움직이는 거리. 초당 200 픽셀
 
 
 def handle_events():
@@ -70,13 +73,13 @@ def update():
         y += dir_y / length * SPEED   # pico2d 는 y 가 위로 증가하므로 위 키(+1)가 위로 간다
     x = clamp(MARGIN_LEFT, x, TUK_WIDTH - MARGIN_RIGHT)   # 화면 경계에 닿으면 더 나가지 않는다
     y = clamp(MARGIN_BOTTOM, y, TUK_HEIGHT - MARGIN_TOP)
-    frame = (frame + 1) % 8
+    frame = (frame + 1) % FRAME_COUNT
 
 
 def draw():
     clear_canvas()
     tuk_ground.draw(TUK_WIDTH // 2, TUK_HEIGHT // 2)
-    character.clip_draw(frame * 100, action, 100, 100, x, y)
+    character.clip_draw(frame * FRAME_SIZE, action, FRAME_SIZE, FRAME_SIZE, x, y)
     update_canvas()
 
 
@@ -95,6 +98,6 @@ while running:
     handle_events()
     update()
     draw()
-    delay(0.05)
+    delay(FRAME_TIME)
 
 close_canvas()
