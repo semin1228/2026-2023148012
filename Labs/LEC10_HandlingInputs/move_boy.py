@@ -20,6 +20,8 @@ FRAME_TIME = 0.05   # 한 프레임을 보여 주는 시간(초)
 # 100x100 프레임에는 투명 여백이 있어서 50 으로 막으면 화면 끝에 닿기 전에 멈춰 보인다
 MARGIN_LEFT, MARGIN_RIGHT = 32, 34
 MARGIN_BOTTOM, MARGIN_TOP = 39, 41
+FONT_PATH = 'C:/Windows/Fonts/consola.ttf'   # 정보 표시용 Windows 기본 글꼴
+ACTION_NAMES = {IDLE_RIGHT: 'IDLE RIGHT', IDLE_LEFT: 'IDLE LEFT', RUN_RIGHT: 'RUN RIGHT', RUN_LEFT: 'RUN LEFT'}
 SPEED = 10   # 한 프레임(FRAME_TIME)에 움직이는 거리. 초당 200 픽셀
 
 
@@ -76,16 +78,31 @@ def update():
     frame = (frame + 1) % FRAME_COUNT
 
 
+def draw_info():
+    # 채점 때 확인하기 쉽도록 지금 동작과 위치를 표시한다
+    if font is None:
+        return
+    # 배경 그림이 복잡해서 글씨가 묻히지 않도록 어두운 사각형을 먼저 깐다
+    draw_rectangle(10, TUK_HEIGHT - 70, 340, TUK_HEIGHT - 10, 0, 0, 0, filled=True)
+    font.draw(20, TUK_HEIGHT - 25, f'{ACTION_NAMES[action]}  ({round(x)}, {round(y)})', (255, 255, 255))
+    font.draw(20, TUK_HEIGHT - 55, 'ARROW: move   ESC: quit', (255, 255, 200))
+
+
 def draw():
     clear_canvas()
     tuk_ground.draw(TUK_WIDTH // 2, TUK_HEIGHT // 2)
     character.clip_draw(frame * FRAME_SIZE, action, FRAME_SIZE, FRAME_SIZE, x, y)
+    draw_info()
     update_canvas()
 
 
 open_canvas(TUK_WIDTH, TUK_HEIGHT)
 tuk_ground = load_image('TUK_GROUND.png')
 character = load_image('animation_sheet.png')
+try:
+    font = load_font(FONT_PATH, 22)
+except IOError:
+    font = None   # 글꼴이 없는 환경에서도 게임은 되도록 정보 표시만 생략
 
 running = True
 x, y = TUK_WIDTH // 2, TUK_HEIGHT // 2
