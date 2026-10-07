@@ -77,6 +77,23 @@ def test_up_down_keeps_direction():
     assert run(3, {0: ['+U']})[-1][2] == 'RUN_R'
 
 
+def test_screen_boundary():
+    # 한 방향으로 화면을 넘을 만큼(150 프레임 x 10 = 1500) 계속 가도 경계에서 멈춰야 함
+    for key, check in (('L', lambda x, y: x == 32), ('R', lambda x, y: x == 1280 - 34),
+                       ('D', lambda x, y: y == 39), ('U', lambda x, y: y == 1024 - 41)):
+        log = run(150, {0: ['+' + key]})
+        assert check(*log[-1][:2]), (key, log[-1])
+        assert all(32 <= x <= 1280 - 34 and 39 <= y <= 1024 - 41 for x, y, _ in log), key
+    # 대각선으로 구석까지
+    assert run(150, {0: ['+L', '+D']})[-1][:2] == (32, 39)
+
+
+def test_diagonal_speed():
+    log = run(3, {0: ['+R', '+U']})
+    (x0, y0, _), (x1, y1, _) = log[0], log[1]
+    assert abs(((x1 - x0) ** 2 + (y1 - y0) ** 2) ** 0.5 - 10) < 1.5, '대각선도 한 프레임에 약 10 픽셀'
+
+
 if __name__ == '__main__':
     tests = [f for name, f in list(globals().items()) if name.startswith('test_')]
     for test in tests:
