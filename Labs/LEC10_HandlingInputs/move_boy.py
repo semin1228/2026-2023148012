@@ -11,6 +11,7 @@ TUK_WIDTH, TUK_HEIGHT = 1280, 1024   # 배경 TUK_GROUND.png 크기에 캔버스
 # animation_sheet.png 는 100x100 프레임 8개짜리 줄이 4개. pico2d 좌하단 원점 기준 각 줄의 bottom
 IDLE_RIGHT, IDLE_LEFT = 300, 200
 RUN_RIGHT, RUN_LEFT = 100, 0
+HALF_W = 50   # 프레임 너비의 절반. 중심 x 가 화면 끝에서 이만큼 안쪽까지만 갈 수 있다
 SPEED = 10   # 한 프레임(0.05초)에 움직이는 거리. 초당 200 픽셀
 
 
@@ -56,6 +57,7 @@ def update():
         action = IDLE_RIGHT if face == 1 else IDLE_LEFT
     x += dir_x * SPEED
     y += dir_y * SPEED   # pico2d 는 y 가 위로 증가하므로 위 키(+1)가 위로 간다
+    x = clamp(HALF_W, x, TUK_WIDTH - HALF_W)   # 화면 경계에 닿으면 더 나가지 않는다
     frame = (frame + 1) % 8
 
 
