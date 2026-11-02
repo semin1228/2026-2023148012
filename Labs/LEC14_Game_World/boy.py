@@ -34,7 +34,7 @@ class Boy:
                 # dest=None: 상태는 그대로 두고 after 콜백만 실행 (내부 전이)
                 {'trigger': 'fire_ball',
                  'source': ['IDLE', 'RUN'], 'dest': None,
-                 'after': 'shoot_ball'},
+                 'after': 'kick_ball'},
             ],
             initial='IDLE',
             auto_transitions=False,
@@ -50,9 +50,11 @@ class Boy:
     def on_enter_RUN(self):
         self.frame = 0
 
-    def shoot_ball(self):
-        # 바라보는 방향으로 손 앞에서 볼을 만들어 월드에 넣는다
-        ball = Ball(self.x + self.face_dir * 25, self.y, self.face_dir * 10)
+    def kick_ball(self):
+        # 바라보는 방향의 발 앞, 땅 위에 볼을 놓고 차서 굴린다
+        # (신발 바닥이 y - 34 이고 볼 반지름이 11 이므로 볼 중심은 y - 23)
+        ball = Ball(self.x + self.face_dir * 25, self.y - 23,
+                    self.face_dir * 10)
         game_world.add_object(ball)
 
     def handle_event(self, event):
