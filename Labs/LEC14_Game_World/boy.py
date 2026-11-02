@@ -28,6 +28,10 @@ class Boy:
                  'source': ['IDLE', 'SLEEP'], 'dest': 'RUN'},
                 {'trigger': 'stop_run',
                  'source': 'RUN', 'dest': 'IDLE'},
+                # dest=None: 상태는 그대로 두고 after 콜백만 실행 (내부 전이)
+                {'trigger': 'fire_ball',
+                 'source': ['IDLE', 'RUN'], 'dest': None,
+                 'after': 'print_fire_direction'},
             ],
             initial='IDLE',
             auto_transitions=False,
@@ -43,11 +47,17 @@ class Boy:
     def on_enter_RUN(self):
         self.frame = 0
 
+    def print_fire_direction(self):
+        direction = 'RIGHT' if self.face_dir == 1 else 'LEFT'
+        print(f'FIRE BALL to {direction} (state: {self.state})')
+
     def handle_event(self, event):
-        if (event.type == SDL_KEYDOWN and
-                event.key == SDLK_SPACE and
-                self.state == 'SLEEP'):
-            self.wake_up()
+        if event.type == SDL_KEYDOWN and event.key == SDLK_SPACE:
+            # SLEEP 에서는 스페이스가 기상 입력이므로 발사하지 않는다
+            if self.state == 'SLEEP':
+                self.wake_up()
+            else:
+                self.fire_ball()
             return
 
         if (event.type not in (SDL_KEYDOWN, SDL_KEYUP) or
