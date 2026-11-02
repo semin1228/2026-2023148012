@@ -55,7 +55,7 @@ class Boy:
         # (신발 바닥이 y - 34 이고 볼 반지름이 11 이므로 볼 중심은 y - 23)
         ball = Ball(self.x + self.face_dir * 25, self.y - 23,
                     self.face_dir * 10)
-        game_world.add_object(ball)
+        game_world.add_object(ball, 1)
 
     def handle_event(self, event):
         if event.type == SDL_KEYDOWN and event.key == SDLK_SPACE:
