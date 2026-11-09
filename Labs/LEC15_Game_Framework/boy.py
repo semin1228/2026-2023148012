@@ -50,6 +50,13 @@ class Boy:
         ball = Ball(self.x, self.y, self.face_dir * 10)
         game_world.add_oject(ball)
 
+    def release_all_keys(self):
+        # 다른 모드에 가 있는 동안 놓친 키업 대신, 모든 키를 뗀 것으로 처리
+        self.pressed_keys.clear()
+        if self.state == 'RUN':
+            self.dir = 0
+            self.stop_run()
+
     def handle_event(self, event):
         if (event.type == SDL_KEYDOWN and
                 event.key == SDLK_SPACE and

@@ -7,6 +7,7 @@ from boy import Boy
 from grass import Grass
 
 boy = None
+paused_at = 0.0
 
 
 def handle_events():
@@ -47,8 +48,11 @@ def finish():
 
 
 def pause():
-    pass
+    global paused_at
+    paused_at = get_time()
 
 
 def resume():
-    pass
+    # 멈춰 있던 시간은 서 있던 시간에서 빼서, 복귀하자마자 잠들지 않게 함
+    boy.idle_started_at += get_time() - paused_at
+    boy.release_all_keys()
