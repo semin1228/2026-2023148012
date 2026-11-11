@@ -8,6 +8,10 @@ from transitions import Machine
 import game_world
 from ball import Ball
 
+BALL_IMAGES = {
+    'SmallBall': 'ball21x21.png',
+    'BigBall': 'ball41x41.png',
+}
 
 class Boy:
     def __init__(self):
@@ -18,6 +22,7 @@ class Boy:
         self.dir = 0
         self.face_dir = 1
         self.pressed_keys = set()
+        self.item = 'SmallBall'  # None 이면 공을 차지 않음
 
         self.machine = Machine(
             model=self,
@@ -47,7 +52,10 @@ class Boy:
         self.frame = 0
 
     def fire_ball(self):
-        ball = Ball(self.x, self.y, self.face_dir * 10)
+        if self.item is None:
+            return
+        ball = Ball(self.x, self.y, self.face_dir * 10,
+                    BALL_IMAGES[self.item])
         game_world.add_oject(ball)
 
     def release_all_keys(self):
