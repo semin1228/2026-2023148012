@@ -5,21 +5,26 @@ from pico2d import *
 
 import game_framework
 import game_world
+import play_mode
 
 font = None
+paused_at = 0.0
 
 
 def init():
-    global font
+    global font, paused_at
     # pico2d 패키지에 들어 있는 기본 폰트를 사용
     font_path = os.path.join(os.path.dirname(pico2d.__file__),
                              'data', 'ConsolaMalgun.ttf')
     font = load_font(font_path, 40)
+    paused_at = get_time()
 
 
 def finish():
     global font
     font = None
+    # 멈춰 있던 시간은 서 있던 시간에서 빼서, 복귀하자마자 잠들지 않게 함
+    play_mode.boy.idle_started_at += get_time() - paused_at
 
 
 def handle_events():

@@ -7,7 +7,6 @@ from boy import Boy
 from grass import Grass
 
 boy = None
-paused_at = 0.0
 
 
 def handle_events():
@@ -48,11 +47,9 @@ def finish():
 
 
 def pause():
-    global paused_at
-    paused_at = get_time()
+    # 다른 모드가 위에 올라오면 키업을 받을 수 없으므로, 모든 키를 뗀 것으로 처리
+    boy.release_all_keys()
 
 
 def resume():
-    # 멈춰 있던 시간은 서 있던 시간에서 빼서, 복귀하자마자 잠들지 않게 함
-    boy.idle_started_at += get_time() - paused_at
-    boy.release_all_keys()
+    pass
